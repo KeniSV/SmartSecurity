@@ -10,12 +10,11 @@ class PantalladeAgregarMiLugar extends StatefulWidget {
   final TrustedContact trustedcontact;
   final Place place;
 
-  PantalladeAgregarMiLugar(
+  const PantalladeAgregarMiLugar(
       {required this.driver,
       required this.trustedcontact,
       required this.place,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   _PantalladeAgregarMiLugarState createState() =>

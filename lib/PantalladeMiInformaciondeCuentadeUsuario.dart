@@ -1,21 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_smartsecurity/Models/Driver.dart';
+import 'package:flutter_smartsecurity/Models/Passenger.dart';
 import 'package:flutter_smartsecurity/Models/TrustedContact.dart';
 import 'package:flutter_smartsecurity/Models/Place.dart';
+import 'package:flutter_smartsecurity/Models/Email.dart';
 import 'package:flutter_smartsecurity/Services/DriverService.dart';
 import 'package:flutter_smartsecurity/PantalladeMiCuentadeUsuario.dart';
+import 'package:flutter_smartsecurity/PantalladeInicio.dart';
 
 class PantalladeMiInformaciondeCuentadeUsuario extends StatefulWidget {
   final Driver driver;
   final TrustedContact trustedContact;
   final Place place;
+  final Passenger passenger;
+  final Email email;
 
-  PantalladeMiInformaciondeCuentadeUsuario({
+  const PantalladeMiInformaciondeCuentadeUsuario({
     required this.driver,
     required this.trustedContact,
     required this.place,
-    Key? key,
-  }) : super(key: key);
+    required this.passenger,
+    required this.email,
+    super.key,
+  });
 
   @override
   _PantalladeMiInformaciondeCuentadeUsuarioState createState() =>
@@ -105,6 +112,8 @@ class _PantalladeMiInformaciondeCuentadeUsuarioState
                         driver: widget.driver,
                         trustedContact: widget.trustedContact,
                         place: widget.place,
+                        passenger: widget.passenger,
+                        email: widget.email,
                       )),
             );
           },
@@ -281,9 +290,21 @@ class _PantalladeMiInformaciondeCuentadeUsuarioState
               child: const Text("Log out", style: TextStyle(color: Colors.red)),
             ),
             TextButton(
-              onPressed: _eliminarCuenta,
-              child: Text("Delete account",
-                  style: TextStyle(color: Colors.red.shade800)),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PantalladeInicio(
+                      passenger: widget.passenger,
+                      driver: widget.driver,
+                      trustedContact: widget.trustedContact,
+                      place: widget.place,
+                      email: widget.email,
+                    ),
+                  ),
+                );
+              },
+              child: const Text("Log out", style: TextStyle(color: Colors.red)),
             ),
           ],
         ),

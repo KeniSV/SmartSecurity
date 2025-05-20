@@ -1,28 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_smartsecurity/PantalladeMenuPrincipal.dart';
-import 'package:flutter_smartsecurity/PantalladeMiCuentadeUsuario.dart';
-import 'package:flutter_smartsecurity/PantalladeConfiguraciones.dart';
+import 'package:flutter_smartsecurity/Models/Passenger.dart';
 import 'package:flutter_smartsecurity/Models/Driver.dart';
 import 'package:flutter_smartsecurity/Models/TrustedContact.dart';
 import 'package:flutter_smartsecurity/Models/Place.dart';
+import 'package:flutter_smartsecurity/Models/Email.dart';
+import 'package:flutter_smartsecurity/PantalladeMenuPrincipal.dart';
+import 'package:flutter_smartsecurity/PantalladeMiCuentadeUsuario.dart';
+import 'package:flutter_smartsecurity/PantalladeConfiguraciones.dart';
 
 class PantalladeUsuario extends StatefulWidget {
   final Driver driver;
   final TrustedContact trustedContact;
   final Place place;
+  final Passenger passenger;
+  final Email email;
 
-  PantalladeUsuario({
+  const PantalladeUsuario({
     required this.driver,
     required this.trustedContact,
     required this.place,
-    Key? key,
-  }) : super(key: key);
+    required this.passenger,
+    required this.email,
+    super.key,
+  });
 
   @override
-  _PantalladeUsuarioState createState() => _PantalladeUsuarioState();
+  PantalladeUsuarioState createState() => PantalladeUsuarioState();
 }
 
-class _PantalladeUsuarioState extends State<PantalladeUsuario> {
+class PantalladeUsuarioState extends State<PantalladeUsuario> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,15 +36,20 @@ class _PantalladeUsuarioState extends State<PantalladeUsuario> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.close, color: Colors.black),
+          icon: const Icon(Icons.close, color: Colors.black),
           onPressed: () {
             Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => PantalladeMenuPrincipal(
-                        driver: widget.driver,
-                        trustedContact: widget.trustedContact,
-                        place: widget.place)));
+              context,
+              MaterialPageRoute(
+                builder: (context) => PantalladeMenuPrincipal(
+                  driver: widget.driver,
+                  trustedContact: widget.trustedContact,
+                  place: widget.place,
+                  passenger: widget.passenger,
+                  email: widget.email,
+                ),
+              ),
+            );
           },
         ),
       ),
@@ -47,44 +58,43 @@ class _PantalladeUsuarioState extends State<PantalladeUsuario> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 20),
-            CircleAvatar(
+            const SizedBox(height: 20),
+            const CircleAvatar(
               radius: 40,
               backgroundColor: Color(0xFFEDE7FE),
               child: Icon(Icons.person, size: 40, color: Colors.grey),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
-              'Username',
-              style: TextStyle(
+              widget.passenger.passengerfirstName,
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
             Text(
-              'example@email.com',
-              style: TextStyle(
+              widget.passenger.passengeremail,
+              style: const TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Color(0xFFEDE7FE)),
+                border: Border.all(color: const Color(0xFFEDE7FE)),
               ),
               child: Column(
                 children: [
                   ListTile(
-                    leading:
-                        Icon(Icons.account_circle, color: Color(0xFF0C1D60)),
-                    title: Text('My account'),
-                    trailing:
-                        Icon(Icons.arrow_forward_ios, color: Colors.black),
+                    leading: const Icon(Icons.account_circle,
+                        color: Color(0xFF0C1D60)),
+                    title: const Text('My account'),
+                    trailing: const Icon(Icons.arrow_forward_ios,
+                        color: Colors.black),
                     onTap: () {
-                      // Navegar a la pantalla de "My account"
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -92,29 +102,33 @@ class _PantalladeUsuarioState extends State<PantalladeUsuario> {
                             driver: widget.driver,
                             trustedContact: widget.trustedContact,
                             place: widget.place,
+                            passenger: widget.passenger,
+                            email: widget.email,
                           ),
                         ),
                       );
                     },
                   ),
-                  Divider(height: 1, color: Color(0xFFEDE7FE)),
+                  const Divider(height: 1, color: Color(0xFFEDE7FE)),
                   ListTile(
-                    leading: Icon(Icons.campaign, color: Color(0xFF0C1D60)),
-                    title: Text('News'),
-                    trailing:
-                        Icon(Icons.arrow_forward_ios, color: Colors.black),
+                    leading:
+                        const Icon(Icons.campaign, color: Color(0xFF0C1D60)),
+                    title: const Text('News'),
+                    trailing: const Icon(Icons.arrow_forward_ios,
+                        color: Colors.black),
                     onTap: () {
                       // Navegar a la pantalla de "News"
+                      // (Pendiente implementar si deseas)
                     },
                   ),
-                  Divider(height: 1, color: Color(0xFFEDE7FE)),
+                  const Divider(height: 1, color: Color(0xFFEDE7FE)),
                   ListTile(
-                    leading: Icon(Icons.settings, color: Color(0xFF0C1D60)),
-                    title: Text('Settings'),
-                    trailing:
-                        Icon(Icons.arrow_forward_ios, color: Colors.black),
+                    leading:
+                        const Icon(Icons.settings, color: Color(0xFF0C1D60)),
+                    title: const Text('Settings'),
+                    trailing: const Icon(Icons.arrow_forward_ios,
+                        color: Colors.black),
                     onTap: () {
-                      // Navegar a la pantalla de "Settings"
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -122,6 +136,8 @@ class _PantalladeUsuarioState extends State<PantalladeUsuario> {
                             driver: widget.driver,
                             trustedcontact: widget.trustedContact,
                             place: widget.place,
+                            passenger: widget.passenger,
+                            email: widget.email,
                           ),
                         ),
                       );

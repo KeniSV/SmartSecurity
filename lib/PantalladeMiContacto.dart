@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_smartsecurity/Models/Passenger.dart';
 import 'package:flutter_smartsecurity/PantalladeAgregarMiContacto.dart';
 import 'package:flutter_smartsecurity/PantalladeMiCuentadeUsuario.dart';
 import 'package:flutter_smartsecurity/Models/Driver.dart';
+import 'package:flutter_smartsecurity/Models/Email.dart';
 import 'package:flutter_smartsecurity/Models/TrustedContact.dart';
 import 'package:flutter_smartsecurity/Models/Place.dart';
 import 'package:flutter_smartsecurity/Services/TrustedContactService.dart';
@@ -10,13 +12,17 @@ class PantalladeMiContacto extends StatefulWidget {
   final Driver driver;
   final TrustedContact trustedContact;
   final Place place;
+  final Passenger passenger;
+  final Email email;
 
-  PantalladeMiContacto({
+  const PantalladeMiContacto({
     required this.driver,
     required this.trustedContact,
     required this.place,
-    Key? key,
-  }) : super(key: key);
+    required this.passenger,
+    required this.email,
+    super.key,
+  });
 
   @override
   _PantalladeMiContactoState createState() => _PantalladeMiContactoState();
@@ -55,20 +61,20 @@ class _PantalladeMiContactoState extends State<PantalladeMiContacto> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Delete Contact'),
+        title: const Text('Delete Contact'),
         content: Text(
             'Are you sure you want to delete ${contact.trustedContactFullName}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
               eliminarContacto(contact.trustedContactID);
               Navigator.pop(context);
             },
-            child: Text('Delete', style: TextStyle(color: Colors.red)),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -82,18 +88,21 @@ class _PantalladeMiContactoState extends State<PantalladeMiContacto> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                     builder: (context) => PantalladeMiCuentadeUsuario(
-                        driver: widget.driver,
-                        trustedContact: widget.trustedContact,
-                        place: widget.place)));
+                          driver: widget.driver,
+                          trustedContact: widget.trustedContact,
+                          place: widget.place,
+                          passenger: widget.passenger,
+                          email: widget.email,
+                        )));
           },
         ),
-        title: Text(
+        title: const Text(
           'Trusted Person',
           style: TextStyle(color: Colors.black),
         ),
@@ -104,16 +113,16 @@ class _PantalladeMiContactoState extends State<PantalladeMiContacto> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
+            const Text(
               'Keep your friends or family in the loop',
               style: TextStyle(color: Colors.grey, fontSize: 16),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             TextField(
               onChanged:
                   buscarContactos, //Llamar a buscar cuando cambia el texto
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
                 hintText: 'Find your contact',
                 filled: true,
                 fillColor: Colors.purple[100],
@@ -123,10 +132,10 @@ class _PantalladeMiContactoState extends State<PantalladeMiContacto> {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Expanded(
               child: contactos.isEmpty
-                  ? Center(
+                  ? const Center(
                       child: Text(
                         'No contacts found',
                         style: TextStyle(color: Colors.grey),
@@ -137,7 +146,7 @@ class _PantalladeMiContactoState extends State<PantalladeMiContacto> {
                       itemBuilder: (context, index) {
                         final contact = contactos[index];
                         return ListTile(
-                          leading: CircleAvatar(
+                          leading: const CircleAvatar(
                             backgroundColor: Colors.indigo,
                             child: Icon(Icons.person, color: Colors.white),
                           ),
@@ -147,19 +156,19 @@ class _PantalladeMiContactoState extends State<PantalladeMiContacto> {
                       },
                     ),
             ),
-            SizedBox(height: 20),
-            Icon(
+            const SizedBox(height: 20),
+            const Icon(
               Icons.group,
               size: 100,
               color: Colors.indigo,
             ),
-            SizedBox(height: 10),
-            Text(
+            const SizedBox(height: 10),
+            const Text(
               'Choose a friend or family member with whom you would like to share your travel information. We will send them the emergency message so they are informed of your trip.',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey, fontSize: 14),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 // Navegar a PantalladeAgregarMiContacto
@@ -170,6 +179,8 @@ class _PantalladeMiContactoState extends State<PantalladeMiContacto> {
                             driver: widget.driver,
                             trustedcontact: widget.trustedContact,
                             place: widget.place,
+                            passenger: widget.passenger,
+                            email: widget.email,
                           )),
                 );
               },
@@ -178,11 +189,12 @@ class _PantalladeMiContactoState extends State<PantalladeMiContacto> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               ),
-              child: Text('Add contact'),
+              child: const Text('Add contact'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             OutlinedButton(
               onPressed: () {
                 // Acción para eliminar contacto
@@ -193,13 +205,14 @@ class _PantalladeMiContactoState extends State<PantalladeMiContacto> {
               },
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.red,
-                side: BorderSide(color: Colors.red),
+                side: const BorderSide(color: Colors.red),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               ),
-              child: Text('Delete contact'),
+              child: const Text('Delete contact'),
             ),
           ],
         ),

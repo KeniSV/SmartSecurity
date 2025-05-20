@@ -7,18 +7,24 @@ import 'package:flutter_smartsecurity/PantalladeUsuario.dart';
 import 'package:flutter_smartsecurity/Models/Driver.dart';
 import 'package:flutter_smartsecurity/Models/TrustedContact.dart';
 import 'package:flutter_smartsecurity/Models/Place.dart';
+import 'package:flutter_smartsecurity/Models/Passenger.dart';
+import 'package:flutter_smartsecurity/Models/Email.dart';
 
 class PantalladeMiCuentadeUsuario extends StatefulWidget {
   final Driver driver;
   final TrustedContact trustedContact;
   final Place place;
+  final Passenger passenger;
+  final Email email;
 
-  PantalladeMiCuentadeUsuario({
+  const PantalladeMiCuentadeUsuario({
     required this.driver,
     required this.trustedContact,
     required this.place,
-    Key? key,
-  }) : super(key: key);
+    required this.passenger,
+    required this.email,
+    super.key,
+  });
 
   @override
   _PantalladeMiCuentadeUsuarioState createState() =>
@@ -32,7 +38,7 @@ class _PantalladeMiCuentadeUsuarioState
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -41,13 +47,15 @@ class _PantalladeMiCuentadeUsuarioState
                         driver: widget.driver,
                         trustedContact: widget.trustedContact,
                         place: widget.place,
+                        passenger: widget.passenger,
+                        email: widget.email,
                       )),
             ); // Acción para retroceder
           },
         ),
         backgroundColor: Colors.white,
         elevation: 0, // Quitar sombra del AppBar
-        iconTheme: IconThemeData(
+        iconTheme: const IconThemeData(
           color: Colors.black, // Color de la flecha de retroceso
         ),
       ),
@@ -57,7 +65,7 @@ class _PantalladeMiCuentadeUsuarioState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Encabezado
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
@@ -87,13 +95,13 @@ class _PantalladeMiCuentadeUsuarioState
                 ),
               ],
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             // Opciones de menú
             ListTile(
-              leading: Icon(Icons.person, color: Color(0xFF0C1D60)),
-              title: Text('My data'),
-              subtitle: Text('Edit email, password ...'),
-              trailing: Icon(Icons.arrow_forward_ios),
+              leading: const Icon(Icons.person, color: Color(0xFF0C1D60)),
+              title: const Text('My data'),
+              subtitle: const Text('Edit email, password ...'),
+              trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () {
                 // Navegar a la pantalla de "My data"
                 Navigator.push(
@@ -104,36 +112,41 @@ class _PantalladeMiCuentadeUsuarioState
                       driver: widget.driver,
                       trustedContact: widget.trustedContact,
                       place: widget.place,
+                      passenger: widget.passenger,
+                      email: widget.email,
                     ),
                   ),
                 );
               },
             ),
-            Divider(),
+            const Divider(),
             ListTile(
-              leading: Icon(Icons.people, color: Color(0xFF0C1D60)),
-              title: Text('Trusted person'),
-              subtitle: Text('Share all your trips'),
-              trailing: Icon(Icons.arrow_forward_ios),
+              leading: const Icon(Icons.people, color: Color(0xFF0C1D60)),
+              title: const Text('Trusted person'),
+              subtitle: const Text('Share all your trips'),
+              trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () {
                 // Navegar a la pantalla de "Trusted person"
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => PantalladeMiContacto(
-                        driver: widget.driver,
-                        trustedContact: widget.trustedContact,
-                        place: widget.place),
+                      driver: widget.driver,
+                      trustedContact: widget.trustedContact,
+                      place: widget.place,
+                      passenger: widget.passenger,
+                      email: widget.email,
+                    ),
                   ),
                 );
               },
             ),
-            Divider(),
+            const Divider(),
             ListTile(
-              leading: Icon(Icons.favorite, color: Color(0xFF0C1D60)),
-              title: Text('My places'),
-              subtitle: Text('Save your favorite places'),
-              trailing: Icon(Icons.arrow_forward_ios),
+              leading: const Icon(Icons.favorite, color: Color(0xFF0C1D60)),
+              title: const Text('My places'),
+              subtitle: const Text('Save your favorite places'),
+              trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () {
                 // Navegar a la pantalla de "My places"
                 Navigator.push(
@@ -147,12 +160,12 @@ class _PantalladeMiCuentadeUsuarioState
                 );
               },
             ),
-            Divider(),
+            const Divider(),
             ListTile(
-              leading: Icon(Icons.language, color: Color(0xFF0C1D60)),
-              title: Text('My language'),
-              subtitle: Text('Select your language'),
-              trailing: Icon(Icons.arrow_forward_ios),
+              leading: const Icon(Icons.language, color: Color(0xFF0C1D60)),
+              title: const Text('My language'),
+              subtitle: const Text('Select your language'),
+              trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () {
                 // Navegar a la pantalla de "My language"
                 Navigator.push(
@@ -162,12 +175,14 @@ class _PantalladeMiCuentadeUsuarioState
                       driver: widget.driver,
                       trustedcontact: widget.trustedContact,
                       place: widget.place,
+                      passenger: widget.passenger,
+                      email: widget.email,
                     ),
                   ),
                 );
               },
             ),
-            Divider(),
+            const Divider(),
           ],
         ),
       ),

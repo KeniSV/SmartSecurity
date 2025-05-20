@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_smartsecurity/Models/Passenger.dart';
 import 'package:flutter_smartsecurity/PantalladePalabraClave.dart';
 import 'package:flutter_smartsecurity/PantalladeUsuario.dart';
 import 'package:flutter_smartsecurity/Models/Driver.dart';
 import 'package:flutter_smartsecurity/Models/TrustedContact.dart';
 import 'package:flutter_smartsecurity/Models/Place.dart';
+import 'package:flutter_smartsecurity/Models/Email.dart';
 
 class PantalladeConfiguraciones extends StatefulWidget {
   final Driver driver;
   final TrustedContact trustedcontact;
   final Place place;
+  final Passenger passenger;
+  final Email email;
 
-  PantalladeConfiguraciones(
+  const PantalladeConfiguraciones(
       {required this.driver,
       required this.trustedcontact,
       required this.place,
-      Key? key})
-      : super(key: key);
+      required this.passenger,
+      required this.email,
+      super.key});
 
   @override
   _PantalladeConfiguracionesState createState() =>
@@ -30,7 +35,7 @@ class _PantalladeConfiguracionesState extends State<PantalladeConfiguraciones> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -39,11 +44,13 @@ class _PantalladeConfiguracionesState extends State<PantalladeConfiguraciones> {
                         driver: widget.driver,
                         trustedContact: widget.trustedcontact,
                         place: widget.place,
+                        passenger: widget.passenger,
+                        email: widget.email,
                       )),
             );
           },
         ),
-        title: Text(
+        title: const Text(
           "Settings",
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
@@ -53,15 +60,16 @@ class _PantalladeConfiguracionesState extends State<PantalladeConfiguraciones> {
         child: Column(
           children: [
             ListTile(
-              leading: CircleAvatar(
+              leading: const CircleAvatar(
                 radius: 24,
                 backgroundColor: Color(0xFFEDE7FE),
                 child: Icon(Icons.graphic_eq, color: Colors.black),
               ),
-              title: Text('Keyword',
+              title: const Text('Keyword',
                   style: TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text('Set your keyword'),
-              trailing: Icon(Icons.arrow_forward_ios, color: Colors.black),
+              subtitle: const Text('Set your keyword'),
+              trailing:
+                  const Icon(Icons.arrow_forward_ios, color: Colors.black),
               onTap: () {
                 // Navegar a la pantalla de configuración de "Keyword"
                 Navigator.push(

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_smartsecurity/Models/Passenger.dart';
 import 'package:flutter_smartsecurity/Models/TrustedContact.dart';
 import 'package:flutter_smartsecurity/Models/Driver.dart';
 import 'package:flutter_smartsecurity/Models/Place.dart';
+import 'package:flutter_smartsecurity/Models/Email.dart';
 import 'package:flutter_smartsecurity/PantalladeMiContacto.dart';
 import 'package:flutter_smartsecurity/Services/TrustedContactService.dart';
 
@@ -9,13 +11,17 @@ class PantallaDeAgregarMiContacto extends StatefulWidget {
   final Driver driver;
   final TrustedContact trustedcontact;
   final Place place;
+  final Passenger passenger;
+  final Email email;
 
-  PantallaDeAgregarMiContacto({
+  const PantallaDeAgregarMiContacto({
     required this.driver,
     required this.trustedcontact,
     required this.place,
-    Key? key,
-  }) : super(key: key);
+    required this.passenger,
+    required this.email,
+    super.key,
+  });
 
   @override
   _PantallaDeAgregarMiContactoState createState() =>
@@ -69,6 +75,8 @@ class _PantallaDeAgregarMiContactoState
           driver: widget.driver,
           trustedContact: nuevoContacto,
           place: widget.place,
+          passenger: widget.passenger,
+          email: widget.email,
         ),
       ),
     );
@@ -88,6 +96,8 @@ class _PantallaDeAgregarMiContactoState
                   driver: widget.driver,
                   trustedContact: widget.trustedcontact,
                   place: widget.place,
+                  passenger: widget.passenger,
+                  email: widget.email,
                 ),
               ),
             );

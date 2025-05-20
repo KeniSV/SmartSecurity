@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_smartsecurity/Models/Passenger.dart';
 import 'package:flutter_smartsecurity/PantalladeMiCuentadeUsuario.dart';
 import 'package:flutter_smartsecurity/Models/Driver.dart';
 import 'package:flutter_smartsecurity/Models/TrustedContact.dart';
 import 'package:flutter_smartsecurity/Models/Place.dart';
+import 'package:flutter_smartsecurity/Models/Email.dart';
 
 class PantallaDeMiLenguaje extends StatefulWidget {
   final Driver driver;
   final TrustedContact trustedcontact;
   final Place place;
+  final Passenger passenger;
+  final Email email;
 
-  PantallaDeMiLenguaje(
+  const PantallaDeMiLenguaje(
       {required this.driver,
       required this.trustedcontact,
       required this.place,
-      Key? key})
-      : super(key: key);
+      required this.passenger,
+      required this.email,
+      super.key});
 
   @override
   _PantallaDeMiLenguaje createState() => _PantallaDeMiLenguaje();
@@ -37,6 +42,8 @@ class _PantallaDeMiLenguaje extends State<PantallaDeMiLenguaje> {
                           driver: widget.driver,
                           trustedContact: widget.trustedcontact,
                           place: widget.place,
+                          passenger: widget.passenger,
+                          email: widget.email,
                         ))); // Acción para retroceder
           },
         ),

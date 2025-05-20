@@ -10,12 +10,11 @@ class PantalladeMiLugar extends StatefulWidget {
   final TrustedContact trustedcontact;
   final Place place;
 
-  PantalladeMiLugar(
+  const PantalladeMiLugar(
       {required this.driver,
       required this.trustedcontact,
       required this.place,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   _PantalladeMiLugarState createState() => _PantalladeMiLugarState();
@@ -75,10 +74,10 @@ class _PantalladeMiLugarState extends State<PantalladeMiLugar> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(
+        title: const Text(
           'My place',
           style: TextStyle(color: Colors.black),
         ),
@@ -89,15 +88,15 @@ class _PantalladeMiLugarState extends State<PantalladeMiLugar> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
+            const Text(
               'Keep the places you visit most frequently saved',
               style: TextStyle(color: Colors.grey, fontSize: 16),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             TextField(
               onChanged: buscarLugares,
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
                 hintText: 'Find your place',
                 filled: true,
                 fillColor: Colors.purple[100],
@@ -107,10 +106,10 @@ class _PantalladeMiLugarState extends State<PantalladeMiLugar> {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Expanded(
               child: lugares.isEmpty
-                  ? Center(
+                  ? const Center(
                       child: Text(
                         'No places found',
                         style: TextStyle(color: Colors.grey),
@@ -141,26 +140,26 @@ class _PantalladeMiLugarState extends State<PantalladeMiLugar> {
                           ),
                           onTap: () => seleccionarLugar(lugar),
                           trailing: IconButton(
-                            icon: Icon(Icons.delete, color: Colors.red),
+                            icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () => eliminarLugar(lugar.placeID),
                           ),
                         );
                       },
                     ),
             ),
-            SizedBox(height: 20),
-            Icon(
+            const SizedBox(height: 20),
+            const Icon(
               Icons.location_on,
               size: 100,
               color: Colors.indigo,
             ),
-            SizedBox(height: 10),
-            Text(
+            const SizedBox(height: 10),
+            const Text(
               'Find and save the place you always visit to make it easier for you to choose the easiest route',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey, fontSize: 14),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 // Navegar a PantalladeAgregarMiLugar
@@ -178,22 +177,24 @@ class _PantalladeMiLugarState extends State<PantalladeMiLugar> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               ),
-              child: Text('Add place'),
+              child: const Text('Add place'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             OutlinedButton(
               onPressed: eliminarLugarSeleccionado,
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.red,
-                side: BorderSide(color: Colors.red),
+                side: const BorderSide(color: Colors.red),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               ),
-              child: Text('Delete selected place'),
+              child: const Text('Delete selected place'),
             ),
           ],
         ),

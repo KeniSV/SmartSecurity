@@ -8,27 +8,21 @@ class Driver extends Passenger {
   String licensePlate;
 
   Driver({
-    required int passengerID,
-    required String passengerfirstName,
-    required String passengerlastname,
-    required String passengeremail,
-    required int passengerdocumentID,
-    required String passengerdocumentType,
-    required int passengercellPhone,
-    required int passengercodecellPhone,
+    required super.passengerID,
+    required super.passengerfirstName,
+    required super.passengerlastname,
+    required super.passengeremail,
+    required super.passengerdocumentID,
+    required super.passengerdocumentType,
+    required super.passengercellPhone,
+    required super.passengercodecellPhone,
+    required super.passengerpassword,
+    bool super.isActive = true,
+    super.lastLogin,
     required this.drives,
     required this.licenseCategory,
     required this.licenseNumber,
     required this.hasCar,
     required this.licensePlate,
-  }) : super(
-          passengerID: passengerID,
-          passengerfirstName: passengerfirstName,
-          passengerlastname: passengerlastname,
-          passengeremail: passengeremail,
-          passengerdocumentID: passengerdocumentID,
-          passengerdocumentType: passengerdocumentType,
-          passengercellPhone: passengercellPhone,
-          passengercodecellPhone: passengercodecellPhone,
-        );
+  });
 }

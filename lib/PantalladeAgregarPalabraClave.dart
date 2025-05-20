@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class PantalladeAgregarPalabraClave extends StatefulWidget {
+  const PantalladeAgregarPalabraClave({super.key});
+
   @override
   _PantalladeAgregarPalabraClaveState createState() =>
       _PantalladeAgregarPalabraClaveState();
@@ -17,12 +19,12 @@ class _PantalladeAgregarPalabraClaveState
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-        title: Text(
+        title: const Text(
           "My keyword",
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
@@ -32,34 +34,35 @@ class _PantalladeAgregarPalabraClaveState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               controller: _keywordController,
               decoration: InputDecoration(
                 hintText: 'Enter your keyword',
                 filled: true,
-                fillColor: Color(0xFFEDE7FE),
+                fillColor: const Color(0xFFEDE7FE),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.0),
                   borderSide: BorderSide.none,
                 ),
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Center(
               child: ElevatedButton(
                 onPressed: () {
                   // Acción para guardar la palabra clave
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(
+                  backgroundColor: const Color(
                       0xFF0C1D60), // Cambié `primary` por `backgroundColor`
-                  minimumSize: Size(double.infinity, 50),
+                  minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text('Save', style: TextStyle(color: Colors.white)),
+                child:
+                    const Text('Save', style: TextStyle(color: Colors.white)),
               ),
             ),
           ],

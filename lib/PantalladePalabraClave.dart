@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smartsecurity/PantalladeAgregarPalabraClave.dart';
 
 class PantalladePalabraClave extends StatefulWidget {
+  const PantalladePalabraClave({super.key});
+
   @override
   _PantalladePalabraClave createState() => _PantalladePalabraClave();
 }
@@ -18,12 +20,12 @@ class _PantalladePalabraClave extends State<PantalladePalabraClave> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-        title: Text(
+        title: const Text(
           "My keyword",
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
@@ -33,13 +35,13 @@ class _PantalladePalabraClave extends State<PantalladePalabraClave> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Keep your keywords saved',
               style: TextStyle(color: Colors.grey),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             CheckboxListTile(
-              title: Text('Help'),
+              title: const Text('Help'),
               value: helpSelected,
               onChanged: (bool? value) {
                 setState(() {
@@ -49,7 +51,7 @@ class _PantalladePalabraClave extends State<PantalladePalabraClave> {
               controlAffinity: ListTileControlAffinity.leading,
             ),
             CheckboxListTile(
-              title: Text('Danger'),
+              title: const Text('Danger'),
               value: dangerSelected,
               onChanged: (bool? value) {
                 setState(() {
@@ -59,7 +61,7 @@ class _PantalladePalabraClave extends State<PantalladePalabraClave> {
               controlAffinity: ListTileControlAffinity.leading,
             ),
             CheckboxListTile(
-              title: Text('Impostor'),
+              title: const Text('Impostor'),
               value: impostorSelected,
               onChanged: (bool? value) {
                 setState(() {
@@ -68,15 +70,15 @@ class _PantalladePalabraClave extends State<PantalladePalabraClave> {
               },
               controlAffinity: ListTileControlAffinity.leading,
             ),
-            SizedBox(height: 32),
-            Center(
+            const SizedBox(height: 32),
+            const Center(
               child: Icon(
                 Icons.vpn_key,
                 size: 100,
                 color: Color(0xFF0C1D60),
               ),
             ),
-            Spacer(),
+            const Spacer(),
             ElevatedButton(
               onPressed: () {
                 // Acción para guardar la palabra clave
@@ -84,12 +86,12 @@ class _PantalladePalabraClave extends State<PantalladePalabraClave> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white, // Reemplaza `primary`
                 foregroundColor: Colors.black, // Reemplaza `onPrimary`
-                side: BorderSide(color: Colors.black),
-                minimumSize: Size(double.infinity, 50),
+                side: const BorderSide(color: Colors.black),
+                minimumSize: const Size(double.infinity, 50),
               ),
-              child: Text('Save'),
+              child: const Text('Save'),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             ElevatedButton(
               onPressed: () {
                 // Acción para añadir una nueva palabra clave
@@ -101,12 +103,13 @@ class _PantalladePalabraClave extends State<PantalladePalabraClave> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF0C1D60), // Reemplaza `primary`
-                minimumSize: Size(double.infinity, 50),
+                backgroundColor: const Color(0xFF0C1D60), // Reemplaza `primary`
+                minimumSize: const Size(double.infinity, 50),
               ),
-              child: Text('Add keyword', style: TextStyle(color: Colors.white)),
+              child: const Text('Add keyword',
+                  style: TextStyle(color: Colors.white)),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             ElevatedButton(
               onPressed: () {
                 // Acción para eliminar la palabra clave
@@ -114,9 +117,9 @@ class _PantalladePalabraClave extends State<PantalladePalabraClave> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red.shade100, // Reemplaza `primary`
                 foregroundColor: Colors.red, // Reemplaza `onPrimary`
-                minimumSize: Size(double.infinity, 50),
+                minimumSize: const Size(double.infinity, 50),
               ),
-              child: Text('Delete keyword'),
+              child: const Text('Delete keyword'),
             ),
           ],
         ),

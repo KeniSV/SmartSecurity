@@ -2,20 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smartsecurity/PantalladeUsuario.dart';
 import 'package:flutter_smartsecurity/Models/Driver.dart';
 import 'package:flutter_smartsecurity/Models/TrustedContact.dart';
-import 'package:flutter_smartsecurity/Models/Place.dart'; // Importa url_launcher
-import 'package:url_launcher/url_launcher_string.dart'; // Importa url_launcher_string para launchUrlString
+import 'package:flutter_smartsecurity/Models/Passenger.dart';
+import 'package:flutter_smartsecurity/Models/Place.dart';
+import 'package:flutter_smartsecurity/Models/Email.dart';
+import 'package:flutter_smartsecurity/PantalladeSoporte.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class PantalladeMenuPrincipal extends StatefulWidget {
   final Driver driver;
   final TrustedContact trustedContact;
   final Place place;
+  final Passenger passenger;
+  final Email email;
 
-  PantalladeMenuPrincipal({
+  const PantalladeMenuPrincipal({
     required this.driver,
     required this.trustedContact,
     required this.place,
-    Key? key,
-  }) : super(key: key);
+    required this.passenger,
+    required this.email,
+    super.key,
+  });
 
   @override
   _PantalladeMenuPrincipalState createState() =>
@@ -26,7 +33,7 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
   bool isVoiceRecognitionActive = false;
 
   void enviarMensajeDeAyudaWhatsApp() async {
-    final String numeroTelefono = '51994702577';
+    const String numeroTelefono = '51994702577';
     final String mensaje = Uri.encodeComponent(
         '¡Necesito ayuda! Por favor, contáctame lo antes posible.');
     final String url = 'https://wa.me/$numeroTelefono?text=$mensaje';
@@ -39,7 +46,7 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
   }
 
   void enviarMensajeDeAyudaSMS() async {
-    final String numeroTelefono = '51994702577';
+    const String numeroTelefono = '51994702577';
     final String mensaje = Uri.encodeComponent(
         '¡Necesito ayuda! Por favor, contáctame lo antes posible.');
     final String url = 'sms:$numeroTelefono?body=$mensaje';
@@ -59,10 +66,9 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
           // Sección del mapa
           Container(
             height: 250,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(
-                    'assets/map_placeholder.png'), // Imagen de mapa (Placeholder)
+                image: AssetImage('assets/map_placeholder.png'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -72,7 +78,6 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
                 padding: const EdgeInsets.all(16.0),
                 child: GestureDetector(
                   onTap: () {
-                    // Acción al presionar el botón de perfil
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -80,11 +85,13 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
                           driver: widget.driver,
                           trustedContact: widget.trustedContact,
                           place: widget.place,
+                          passenger: widget.passenger,
+                          email: widget.email,
                         ),
                       ),
                     );
                   },
-                  child: CircleAvatar(
+                  child: const CircleAvatar(
                     backgroundColor: Colors.white,
                     child: Icon(Icons.person, color: Colors.black),
                   ),
@@ -99,16 +106,16 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     '¡Hi, User!',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 8),
-                  Text(
+                  const SizedBox(height: 8),
+                  const Text(
                     'Are you safe?',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Center(
                     child: ElevatedButton(
                       onPressed: () {
@@ -116,13 +123,13 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
                         enviarMensajeDeAyudaSMS();
                       },
                       style: ElevatedButton.styleFrom(
-                        shape: CircleBorder(),
-                        padding: EdgeInsets.all(50),
-                        backgroundColor: Colors.blueAccent, // Color del fondo
-                        foregroundColor: Colors.indigo, // Color de sombra
+                        shape: const CircleBorder(),
+                        padding: const EdgeInsets.all(50),
+                        backgroundColor: Colors.blueAccent,
+                        foregroundColor: Colors.indigo,
                         elevation: 10,
                       ),
-                      child: Text(
+                      child: const Text(
                         'HELP',
                         style: TextStyle(
                           color: Colors.white,
@@ -132,7 +139,7 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Row(
                     children: [
                       Switch(
@@ -144,13 +151,13 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
                         },
                         activeColor: Colors.indigo,
                       ),
-                      Text('Activate voice recognition'),
+                      const Text('Activate voice recognition'),
                     ],
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   TextField(
                     decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.search),
+                      prefixIcon: const Icon(Icons.search),
                       hintText: 'Enter your route',
                       filled: true,
                       fillColor: Colors.purple[100],
@@ -160,7 +167,7 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -168,7 +175,24 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: [
+        currentIndex: 0, // Indica que está en "Service"
+        onTap: (index) {
+          if (index == 1) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PantalladeSoporte(
+                  driver: widget.driver,
+                  trustedContact: widget.trustedContact,
+                  place: widget.place,
+                  passenger: widget.passenger,
+                  email: widget.email,
+                ),
+              ),
+            );
+          }
+        },
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),
             label: 'Service',
@@ -178,6 +202,8 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
             label: 'Support',
           ),
         ],
+        selectedItemColor: Colors.indigo,
+        unselectedItemColor: Colors.grey,
       ),
     );
   }
