@@ -31,7 +31,7 @@ class PantalladeMiContacto extends StatefulWidget {
 class _PantalladeMiContactoState extends State<PantalladeMiContacto> {
   final TrustedContactService trustedContactService = TrustedContactService();
   List<TrustedContact> contactos = [];
-  String searchQuery = '';
+  TrustedContact? selectedContact;
 
   @override
   void initState() {
@@ -39,46 +39,55 @@ class _PantalladeMiContactoState extends State<PantalladeMiContacto> {
     listarContactos();
   }
 
-  void listarContactos() {
+  void listarContactos() async {
+    final lista = await trustedContactService.listarTrustedContacts();
     setState(() {
-      contactos = trustedContactService.listarTrustedContact();
+      contactos = lista;
     });
   }
 
-  void buscarContactos(String query) {
-    setState(() {
-      searchQuery = query;
-      contactos = trustedContactService.buscarTrustedContact(query);
-    });
-  }
-
-  void eliminarContacto(int contactID) {
-    trustedContactService.eliminarContacto(contactID);
-    listarContactos();
+  void buscarContactos(String query) async {
+    if (query.isEmpty) {
+      listarContactos();
+    } else {
+      final filtrados = await trustedContactService.buscarTrustedContact(query);
+      setState(() {
+        contactos = filtrados;
+      });
+    }
   }
 
   void confirmarEliminarContacto(TrustedContact contact) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Contact'),
-        content: Text(
-            'Are you sure you want to delete ${contact.trustedContactFullName}?'),
+      builder: (_) => AlertDialog(
+        title:
+            const Text('Delete Contact', style: TextStyle(color: Colors.red)),
+        content: const Text('Are you sure you want to delete this contact?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
-              eliminarContacto(contact.trustedContactID);
+            onPressed: () async {
+              await trustedContactService
+                  .eliminarTrustedContact(contact.trustedContactID);
               Navigator.pop(context);
+              listarContactos();
+              setState(() => selectedContact = null);
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: const Text('Yes'),
           ),
         ],
       ),
     );
+  }
+
+  void seleccionarContacto(TrustedContact contact) {
+    setState(() {
+      selectedContact = contact;
+    });
   }
 
   @override
@@ -91,104 +100,90 @@ class _PantalladeMiContactoState extends State<PantalladeMiContacto> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => PantalladeMiCuentadeUsuario(
-                          driver: widget.driver,
-                          trustedContact: widget.trustedContact,
-                          place: widget.place,
-                          passenger: widget.passenger,
-                          email: widget.email,
-                        )));
+              context,
+              MaterialPageRoute(
+                builder: (_) => PantalladeMiCuentadeUsuario(
+                  driver: widget.driver,
+                  trustedContact: widget.trustedContact,
+                  place: widget.place,
+                  passenger: widget.passenger,
+                  email: widget.email,
+                ),
+              ),
+            );
           },
         ),
-        title: const Text(
-          'Trusted Person',
-          style: TextStyle(color: Colors.black),
-        ),
+        title:
+            const Text('Trusted Person', style: TextStyle(color: Colors.black)),
         centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Text(
               'Keep your friends or family in the loop',
-              style: TextStyle(color: Colors.grey, fontSize: 16),
+              style: TextStyle(color: Colors.grey),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             TextField(
-              onChanged:
-                  buscarContactos, //Llamar a buscar cuando cambia el texto
+              onChanged: buscarContactos,
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search),
                 hintText: 'Find your contact',
                 filled: true,
                 fillColor: Colors.purple[100],
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
+                  borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Expanded(
               child: contactos.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'No contacts found',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    )
+                  ? const Center(child: Text('No contacts found'))
                   : ListView.builder(
                       itemCount: contactos.length,
                       itemBuilder: (context, index) {
                         final contact = contactos[index];
+                        final phoneDisplay =
+                            '+${contact.trustedContactCodeCellPhone} ${contact.trustedContactCellPhone}';
+
                         return ListTile(
                           leading: const CircleAvatar(
                             backgroundColor: Colors.indigo,
                             child: Icon(Icons.person, color: Colors.white),
                           ),
                           title: Text(contact.trustedContactFullName),
-                          onTap: () => confirmarEliminarContacto(contact),
+                          subtitle: Text(phoneDisplay),
+                          selected: selectedContact?.trustedContactID ==
+                              contact.trustedContactID,
+                          onTap: () => seleccionarContacto(contact),
                         );
                       },
                     ),
             ),
-            const SizedBox(height: 20),
-            const Icon(
-              Icons.group,
-              size: 100,
-              color: Colors.indigo,
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Choose a friend or family member with whom you would like to share your travel information. We will send them the emergency message so they are informed of your trip.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey, fontSize: 14),
-            ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                // Navegar a PantalladeAgregarMiContacto
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => PantallaDeAgregarMiContacto(
-                            driver: widget.driver,
-                            trustedcontact: widget.trustedContact,
-                            place: widget.place,
-                            passenger: widget.passenger,
-                            email: widget.email,
-                          )),
+                    builder: (_) => PantallaDeAgregarMiContacto(
+                      driver: widget.driver,
+                      trustedcontact: widget.trustedContact,
+                      place: widget.place,
+                      passenger: widget.passenger,
+                      email: widget.email,
+                    ),
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.indigo,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
+                    borderRadius: BorderRadius.circular(30)),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               ),
@@ -196,19 +191,14 @@ class _PantalladeMiContactoState extends State<PantalladeMiContacto> {
             ),
             const SizedBox(height: 10),
             OutlinedButton(
-              onPressed: () {
-                // Acción para eliminar contacto
-                if (contactos.isNotEmpty) {
-                  eliminarContacto(contactos[0]
-                      .trustedContactID); // Ejemplo: eliminar el primer contacto
-                }
-              },
+              onPressed: selectedContact != null
+                  ? () => confirmarEliminarContacto(selectedContact!)
+                  : null,
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.red,
                 side: const BorderSide(color: Colors.red),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
+                    borderRadius: BorderRadius.circular(30)),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               ),

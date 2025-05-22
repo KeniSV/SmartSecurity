@@ -10,19 +10,21 @@ class PantalladeMiLugar extends StatefulWidget {
   final TrustedContact trustedcontact;
   final Place place;
 
-  const PantalladeMiLugar(
-      {required this.driver,
-      required this.trustedcontact,
-      required this.place,
-      super.key});
+  const PantalladeMiLugar({
+    required this.driver,
+    required this.trustedcontact,
+    required this.place,
+    super.key,
+  });
 
   @override
   _PantalladeMiLugarState createState() => _PantalladeMiLugarState();
 }
 
 class _PantalladeMiLugarState extends State<PantalladeMiLugar> {
-  final Placeservice placeService = Placeservice();
-  List<Place> lugares = [];
+  final PlaceService placeService = PlaceService();
+  List<Place> todosLosLugares = [];
+  List<Place> lugaresFiltrados = [];
   String searchQuery = '';
   Place? lugarSeleccionado;
 
@@ -32,39 +34,59 @@ class _PantalladeMiLugarState extends State<PantalladeMiLugar> {
     listarLugares();
   }
 
-  void listarLugares() {
+  Future<void> listarLugares() async {
+    final lugares = await placeService.listarLugares();
     setState(() {
-      lugares = placeService.listarPlaces();
+      todosLosLugares = lugares;
+      lugaresFiltrados = lugares;
+      lugarSeleccionado = null;
     });
   }
 
   void buscarLugares(String query) {
+    final filtro = todosLosLugares.where((lugar) {
+      return lugar.placeName.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+
     setState(() {
       searchQuery = query;
-      lugares = placeService.buscarLugar(query);
+      lugaresFiltrados = filtro;
     });
   }
 
   void seleccionarLugar(Place lugar) {
     setState(() {
-      lugarSeleccionado = lugar; // Marca el lugar seleccionado
+      lugarSeleccionado = lugar;
     });
   }
 
-  void eliminarLugarSeleccionado() {
-    if (lugarSeleccionado != null) {
-      placeService.eliminarLugar(lugarSeleccionado!.placeID);
-      listarLugares();
-      setState(() {
-        lugarSeleccionado =
-            null; // Desmarca el lugar seleccionado después de eliminarlo
-      });
-    }
-  }
+  void confirmarEliminarLugar() {
+    if (lugarSeleccionado == null) return;
 
-  void eliminarLugar(int placeID) {
-    placeService.eliminarLugar(placeID);
-    listarLugares();
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text(
+          'Delete Place',
+          style: TextStyle(color: Colors.red),
+        ),
+        content: const Text('Are you sure you want to delete this place?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context), // Cancel
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context); // Cerrar diálogo
+              await placeService.eliminarLugar(lugarSeleccionado!.placeID);
+              listarLugares();
+            },
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -108,7 +130,7 @@ class _PantalladeMiLugarState extends State<PantalladeMiLugar> {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: lugares.isEmpty
+              child: lugaresFiltrados.isEmpty
                   ? const Center(
                       child: Text(
                         'No places found',
@@ -116,33 +138,27 @@ class _PantalladeMiLugarState extends State<PantalladeMiLugar> {
                       ),
                     )
                   : ListView.builder(
-                      itemCount: lugares.length,
+                      itemCount: lugaresFiltrados.length,
                       itemBuilder: (context, index) {
-                        final lugar = lugares[index];
+                        final lugar = lugaresFiltrados[index];
+                        final isSelected =
+                            lugarSeleccionado?.placeID == lugar.placeID;
                         return ListTile(
                           leading: Icon(
                             Icons.location_on,
-                            color: lugarSeleccionado == lugar
-                                ? Colors
-                                    .blue // Color destacado para el seleccionado
-                                : Colors.indigo,
+                            color: isSelected ? Colors.blue : Colors.indigo,
                           ),
                           title: Text(
                             lugar.placeName,
                             style: TextStyle(
-                              color: lugarSeleccionado == lugar
-                                  ? Colors.blue
-                                  : Colors.black,
-                              fontWeight: lugarSeleccionado == lugar
+                              color: isSelected ? Colors.blue : Colors.black,
+                              fontWeight: isSelected
                                   ? FontWeight.bold
                                   : FontWeight.normal,
                             ),
                           ),
+                          subtitle: Text(lugar.address),
                           onTap: () => seleccionarLugar(lugar),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => eliminarLugar(lugar.placeID),
-                          ),
                         );
                       },
                     ),
@@ -161,16 +177,18 @@ class _PantalladeMiLugarState extends State<PantalladeMiLugar> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                // Navegar a PantalladeAgregarMiLugar
-                Navigator.push(
+              onPressed: () async {
+                await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => PantalladeAgregarMiLugar(
-                          driver: widget.driver,
-                          trustedcontact: widget.trustedcontact,
-                          place: widget.place)),
-                ).then((_) => listarLugares());
+                    builder: (context) => PantalladeAgregarMiLugar(
+                      driver: widget.driver,
+                      trustedcontact: widget.trustedcontact,
+                      place: widget.place,
+                    ),
+                  ),
+                );
+                listarLugares();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.indigo,
@@ -184,7 +202,8 @@ class _PantalladeMiLugarState extends State<PantalladeMiLugar> {
             ),
             const SizedBox(height: 10),
             OutlinedButton(
-              onPressed: eliminarLugarSeleccionado,
+              onPressed:
+                  lugarSeleccionado == null ? null : confirmarEliminarLugar,
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.red,
                 side: const BorderSide(color: Colors.red),

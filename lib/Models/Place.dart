@@ -8,4 +8,20 @@ class Place {
     required this.placeName,
     required this.address,
   });
+
+  factory Place.fromJson(Map<String, dynamic> json) {
+    return Place(
+      placeID: json['placeID'],
+      placeName: json['placeName'],
+      address: json['address'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'placeID': placeID,
+      'placeName': placeName,
+      'address': address,
+    };
+  }
 }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_smartsecurity/Models/Keyword.dart';
+import 'package:flutter_smartsecurity/Services/KeywordService.dart';
 
 class PantalladeAgregarPalabraClave extends StatefulWidget {
   const PantalladeAgregarPalabraClave({super.key});
@@ -11,6 +13,58 @@ class PantalladeAgregarPalabraClave extends StatefulWidget {
 class _PantalladeAgregarPalabraClaveState
     extends State<PantalladeAgregarPalabraClave> {
   final TextEditingController _keywordController = TextEditingController();
+  final KeywordService _keywordService = KeywordService();
+  bool _isLoading = false;
+
+  void _guardarPalabraClave() async {
+    final nombre = _keywordController.text.trim();
+
+    if (nombre.isEmpty) {
+      _mostrarDialogo("Please enter a keyword.");
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final nuevaKeyword = Keyword(keywordID: 0, keywordName: nombre);
+
+    try {
+      await _keywordService.crearKeyword(nuevaKeyword);
+      _mostrarDialogo("✅ Keyword saved successfully", cerrarPantalla: true);
+    } catch (e) {
+      _mostrarDialogo("❌ Failed to save keyword: $e");
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _mostrarDialogo(String mensaje, {bool cerrarPantalla = false}) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        content: Text(mensaje),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              if (cerrarPantalla) Navigator.pop(context);
+            },
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _keywordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,30 +104,22 @@ class _PantalladeAgregarPalabraClaveState
             const SizedBox(height: 24),
             Center(
               child: ElevatedButton(
-                onPressed: () {
-                  // Acción para guardar la palabra clave
-                },
+                onPressed: _isLoading ? null : _guardarPalabraClave,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(
-                      0xFF0C1D60), // Cambié `primary` por `backgroundColor`
+                  backgroundColor: const Color(0xFF0C1D60),
                   minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child:
-                    const Text('Save', style: TextStyle(color: Colors.white)),
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('Save', style: TextStyle(color: Colors.white)),
               ),
             ),
           ],
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _keywordController.dispose();
-    super.dispose();
   }
 }

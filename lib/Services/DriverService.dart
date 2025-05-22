@@ -1,49 +1,105 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter_smartsecurity/Models/Driver.dart';
 
 class DriverService {
-  final List<Driver> _drivers = [];
+  final String baseUrl =
+      'http://localhost:8000'; // Cambia a tu IP si usas dispositivo físico
 
-  void guardarCambiosDatos(
-    Driver driver, {
-    String? firstName,
-    String? lastName,
-    String? email,
-    int? documentID,
-    String? documentType,
-    int? cellPhone,
-    int? codeCellPhone,
-    bool? drives,
-    String? licenseCategory,
-    String? licenseNumber,
-    bool? hasCar,
-    String? licensePlate,
-  }) {
+  /// Crear un nuevo driver (POST)
+  Future<void> crearDriver(Driver driver) async {
+    final url = Uri.parse('$baseUrl/driver/');
+
+    final Map<String, dynamic> jsonData = {
+      "passenger": {
+        "passengerID": driver.passengerID,
+        "passengerFirstName": driver.passengerfirstName,
+        "passengerLastName": driver.passengerlastname,
+        "passengerEmail": driver.passengeremail,
+        "passengerDocumentID": driver.passengerdocumentID,
+        "passengerDocumentType": int.tryParse(driver.passengerdocumentType),
+        "passengerCellPhone": driver.passengercellPhone,
+        "passengerCodeCellPhone": driver.passengercodecellPhone,
+        "passengerPassword": driver.passengerpassword,
+      },
+      "drives": driver.drives,
+      "licenseCategory": driver.licenseCategory,
+      "licenseNumber": driver.licenseNumber,
+      "hasCar": driver.hasCar,
+      "licensePlate": driver.licensePlate,
+    };
+
     try {
-      if (firstName != null) driver.passengerfirstName = firstName;
-      if (lastName != null) driver.passengerlastname = lastName;
-      if (email != null) driver.passengeremail = email;
-      if (documentID != null) driver.passengerdocumentID = documentID;
-      if (documentType != null) driver.passengerdocumentType = documentType;
-      if (cellPhone != null) driver.passengercellPhone = cellPhone;
-      if (codeCellPhone != null) driver.passengercodecellPhone = codeCellPhone;
-      if (drives != null) driver.drives = drives;
-      if (licenseCategory != null) driver.licenseCategory = licenseCategory;
-      if (licenseNumber != null) driver.licenseNumber = licenseNumber;
-      if (hasCar != null) driver.hasCar = hasCar;
-      if (licensePlate != null) driver.licensePlate = licensePlate;
-      print(
-          "Datos del conductor '${driver.passengerfirstName}' actualizados exitosamente.");
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(jsonData),
+      );
+
+      if (response.statusCode == 200) {
+        print('✅ Driver creado exitosamente');
+      } else {
+        print('❌ Error al crear driver: ${response.body}');
+      }
     } catch (e) {
-      print("Error al actualizar datos del conductor: $e");
+      print('❗ Error de red: $e');
     }
   }
 
-  void eliminarCuenta(Driver driver) {
+  /// Actualizar datos del driver (PUT)
+  Future<void> actualizarDriver(Driver driver) async {
+    final url = Uri.parse('$baseUrl/driver/${driver.passengerID}');
+
+    final Map<String, dynamic> jsonData = {
+      "passenger": {
+        "passengerID": driver.passengerID,
+        "passengerFirstName": driver.passengerfirstName,
+        "passengerLastName": driver.passengerlastname,
+        "passengerEmail": driver.passengeremail,
+        "passengerDocumentID": driver.passengerdocumentID,
+        "passengerDocumentType": int.tryParse(driver.passengerdocumentType),
+        "passengerCellPhone": driver.passengercellPhone,
+        "passengerCodeCellPhone": driver.passengercodecellPhone,
+        "passengerPassword": driver.passengerpassword,
+      },
+      "drives": driver.drives,
+      "licenseCategory": driver.licenseCategory,
+      "licenseNumber": driver.licenseNumber,
+      "hasCar": driver.hasCar,
+      "licensePlate": driver.licensePlate,
+    };
+
     try {
-      _drivers.removeWhere((d) => d.passengerID == driver.passengerID);
-      print("Cuenta de '${driver.passengerfirstName}' eliminada exitosamente.");
+      final response = await http.put(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(jsonData),
+      );
+
+      if (response.statusCode == 200) {
+        print('✅ Driver actualizado exitosamente');
+      } else {
+        print('❌ Error al actualizar driver: ${response.body}');
+      }
     } catch (e) {
-      print("Error al eliminar la cuenta: $e");
+      print('❗ Error de red: $e');
+    }
+  }
+
+  /// Eliminar driver (DELETE)
+  Future<void> eliminarDriver(int passengerID) async {
+    final url = Uri.parse('$baseUrl/driver/$passengerID');
+
+    try {
+      final response = await http.delete(url);
+
+      if (response.statusCode == 200) {
+        print('✅ Driver eliminado exitosamente');
+      } else {
+        print('❌ Error al eliminar driver: ${response.body}');
+      }
+    } catch (e) {
+      print('❗ Error de red: $e');
     }
   }
 }

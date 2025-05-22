@@ -10,11 +10,12 @@ class PantalladeAgregarMiLugar extends StatefulWidget {
   final TrustedContact trustedcontact;
   final Place place;
 
-  const PantalladeAgregarMiLugar(
-      {required this.driver,
-      required this.trustedcontact,
-      required this.place,
-      super.key});
+  const PantalladeAgregarMiLugar({
+    required this.driver,
+    required this.trustedcontact,
+    required this.place,
+    super.key,
+  });
 
   @override
   _PantalladeAgregarMiLugarState createState() =>
@@ -22,8 +23,7 @@ class PantalladeAgregarMiLugar extends StatefulWidget {
 }
 
 class _PantalladeAgregarMiLugarState extends State<PantalladeAgregarMiLugar> {
-  final Placeservice placeService = Placeservice();
-
+  final PlaceService placeService = PlaceService();
   final TextEditingController placeNameController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
 
@@ -34,23 +34,58 @@ class _PantalladeAgregarMiLugarState extends State<PantalladeAgregarMiLugar> {
     addressController.text = widget.place.address;
   }
 
-  void agregarLugar() {
-    final nuevoLugar = Place(
-        placeID: DateTime.now().millisecondsSinceEpoch,
-        placeName: placeNameController.text,
-        address: addressController.text);
+  void agregarLugar() async {
+    final nombre = placeNameController.text.trim();
+    final direccion = addressController.text.trim();
 
-    placeService.agregarLugar(nuevoLugar);
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PantalladeMiLugar(
-          driver: widget.driver,
-          trustedcontact: widget.trustedcontact,
-          place: nuevoLugar,
+    if (nombre.isEmpty || direccion.isEmpty) {
+      _mostrarAlerta("Please complete all fields.");
+      return;
+    }
+
+    final nuevoLugar = Place(
+      placeID: 0, // Si el backend lo autogenera, este valor se ignora
+      placeName: nombre,
+      address: direccion,
+    );
+
+    try {
+      await placeService.crearLugar(nuevoLugar);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PantalladeMiLugar(
+            driver: widget.driver,
+            trustedcontact: widget.trustedcontact,
+            place: nuevoLugar,
+          ),
         ),
+      );
+    } catch (e) {
+      _mostrarAlerta("Error while saving: $e");
+    }
+  }
+
+  void _mostrarAlerta(String mensaje) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        content: Text(mensaje),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          ),
+        ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    placeNameController.dispose();
+    addressController.dispose();
+    super.dispose();
   }
 
   @override
@@ -63,18 +98,18 @@ class _PantalladeAgregarMiLugarState extends State<PantalladeAgregarMiLugar> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                  builder: (context) => PantalladeMiLugar(
-                      driver: widget.driver,
-                      trustedcontact: widget.trustedcontact,
-                      place: widget.place)),
-            ); // Acción para retroceder
+                builder: (context) => PantalladeMiLugar(
+                  driver: widget.driver,
+                  trustedcontact: widget.trustedcontact,
+                  place: widget.place,
+                ),
+              ),
+            );
           },
         ),
         backgroundColor: Colors.white,
-        elevation: 0, // Quitar sombra del AppBar
-        iconTheme: const IconThemeData(
-          color: Colors.black, // Color de la flecha de retroceso
-        ),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -89,7 +124,6 @@ class _PantalladeAgregarMiLugarState extends State<PantalladeAgregarMiLugar> {
               ),
             ),
             const SizedBox(height: 20),
-            // Campo de texto para el nombre del lugar
             TextField(
               controller: placeNameController,
               decoration: InputDecoration(
@@ -103,7 +137,6 @@ class _PantalladeAgregarMiLugarState extends State<PantalladeAgregarMiLugar> {
               ),
             ),
             const SizedBox(height: 20),
-            // Campo de texto para la dirección
             TextField(
               controller: addressController,
               decoration: InputDecoration(
@@ -118,10 +151,9 @@ class _PantalladeAgregarMiLugarState extends State<PantalladeAgregarMiLugar> {
               ),
             ),
             const SizedBox(height: 20),
-            // Botón para seleccionar en el mapa
             GestureDetector(
               onTap: () {
-                // Acción para seleccionar en el mapa
+                // TODO: Implementar selección en mapa si se desea
               },
               child: const Row(
                 children: [
@@ -138,19 +170,17 @@ class _PantalladeAgregarMiLugarState extends State<PantalladeAgregarMiLugar> {
               ),
             ),
             const Spacer(),
-            // Botón de Guardar
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
+                onPressed: agregarLugar,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0C1D60), // Color del botón
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 16), // Espaciado interno
+                  backgroundColor: const Color(0xFF0C1D60),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onPressed: agregarLugar, // Acción al presionar el botón "Save"
                 child: const Text(
                   'Save',
                   style: TextStyle(fontSize: 18),

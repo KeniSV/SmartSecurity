@@ -4,7 +4,7 @@ import 'package:flutter_smartsecurity/Models/Driver.dart';
 import 'package:flutter_smartsecurity/Models/TrustedContact.dart';
 import 'package:flutter_smartsecurity/Models/Place.dart';
 import 'package:flutter_smartsecurity/Models/Email.dart';
-import 'package:flutter_smartsecurity/Models/Passenger.dart'; // Faltaba importar Passenger
+import 'package:flutter_smartsecurity/Models/Passenger.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Instancia de Passenger
+    // Usuario común (passenger)
     final passenger = Passenger(
       passengerID: 1,
       passengerfirstName: 'Keni',
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
       passengerpassword: 'miContrasenaPasajeroSegura123',
     );
 
-    // Instancia de Driver
+    // Usuario conductor (driver)
     final driver = Driver(
       passengerID: 1,
       passengerfirstName: 'Keni',
@@ -46,7 +46,6 @@ class MyApp extends StatelessWidget {
       licensePlate: 'ABC-123',
     );
 
-    // Instancia de TrustedContact
     final trustedContact = TrustedContact(
       trustedContactID: 1,
       trustedContactFullName: 'Ingrid Villogas',
@@ -55,18 +54,16 @@ class MyApp extends StatelessWidget {
       trustedContactEmail: 'ingridr@hotmail.com',
     );
 
-    // Instancia de Place
     final place = Place(
       placeID: 1,
       placeName: 'Universidad Peruana de Ciencias Aplicadas',
       address: 'Av. Universitaria 1801, San Isidro, Lima',
     );
 
-    // Instancia de Email
     final email = Email(
       emailID: 1,
-      subjectEmail: 'Error en el boton',
-      descriptionEmail: 'Cuando presiono el boton no envia la solicitud',
+      subjectEmail: 'Error en el botón',
+      descriptionEmail: 'Cuando presiono el botón no envía la solicitud',
       passengerID: 1,
       passengerfirstName: 'Keni',
       passengerlastname: 'Sanchez',
@@ -89,7 +86,7 @@ class MyApp extends StatelessWidget {
         trustedContact: trustedContact,
         place: place,
         passenger: passenger,
-        email: email, // <-- Solucionamos el error
+        email: email,
       ),
     );
   }

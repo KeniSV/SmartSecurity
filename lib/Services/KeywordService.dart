@@ -1,27 +1,95 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter_smartsecurity/Models/Keyword.dart';
 
-class Keywordservice {
-  final List<Keyword> _keywords = [];
+class KeywordService {
+  final String baseUrl =
+      'http://localhost:8000'; // Cambia por tu IP si usas emulador físico
 
-  void agregarPalabraClave(Keyword keyword) {
+  /// Crear palabra clave (POST)
+  Future<void> crearKeyword(Keyword keyword) async {
+    final url = Uri.parse('$baseUrl/keyword/');
+    final body = {
+      "keywordID": keyword.keywordID,
+      "keywordName": keyword.keywordName,
+    };
+
     try {
-      _keywords.add(keyword);
-      print("Palabra clave '${keyword.keywordName}' agregada exitosamente.");
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("✅ Palabra clave creada exitosamente");
+      } else {
+        print("❌ Error al crear palabra clave: ${response.body}");
+      }
     } catch (e) {
-      print("Error al agregar palabra clave: $e");
+      print("❗ Error de red al crear palabra clave: $e");
     }
   }
 
-  void eliminarPalabraClave(int keywordID) {
+  /// Listar palabras clave (GET)
+  Future<List<Keyword>> listarKeywords() async {
+    final url = Uri.parse('$baseUrl/keyword/');
+
     try {
-      _keywords.removeWhere((keyword) => keyword.keywordID == keywordID);
-      print("Palabra clave con ID $keywordID eliminada exitosamente.");
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((item) => Keyword.fromJson(item)).toList();
+      } else {
+        print("❌ Error al listar palabras clave: ${response.body}");
+        return [];
+      }
     } catch (e) {
-      print("Error al eliminar la palabra clave: $e");
+      print("❗ Error de red al listar palabras clave: $e");
+      return [];
     }
   }
 
-  List<Keyword> listarKeywords() {
-    return _keywords;
+  /// Eliminar palabra clave (DELETE)
+  Future<void> eliminarKeyword(int keywordID) async {
+    final url = Uri.parse('$baseUrl/keyword/$keywordID');
+
+    try {
+      final response = await http.delete(url);
+
+      if (response.statusCode == 200) {
+        print("✅ Palabra clave eliminada exitosamente");
+      } else {
+        print("❌ Error al eliminar palabra clave: ${response.body}");
+      }
+    } catch (e) {
+      print("❗ Error de red al eliminar palabra clave: $e");
+    }
+  }
+
+  /// Actualizar palabra clave (PUT)
+  Future<void> actualizarKeyword(Keyword keyword) async {
+    final url = Uri.parse('$baseUrl/keyword/${keyword.keywordID}');
+    final body = {
+      "keywordID": keyword.keywordID,
+      "keywordName": keyword.keywordName,
+    };
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        print("✅ Palabra clave actualizada exitosamente");
+      } else {
+        print("❌ Error al actualizar palabra clave: ${response.body}");
+      }
+    } catch (e) {
+      print("❗ Error de red al actualizar palabra clave: $e");
+    }
   }
 }

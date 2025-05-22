@@ -36,7 +36,7 @@ class _PantallaDeAgregarMiContactoState
   final TextEditingController cellPhoneController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
 
-  String selectedCode = '+51'; // Valor inicial para evitar problemas
+  String selectedCode = '+51';
 
   @override
   void initState() {
@@ -46,7 +46,6 @@ class _PantallaDeAgregarMiContactoState
         widget.trustedcontact.trustedContactCellPhone.toString();
     emailController.text = widget.trustedcontact.trustedContactEmail;
 
-    // Verificar que el código seleccionado esté en la lista de opciones
     selectedCode = [
       '+1',
       '+51',
@@ -57,16 +56,30 @@ class _PantallaDeAgregarMiContactoState
         : '+51';
   }
 
-  void agregarContacto() {
+  void agregarContacto() async {
+    if (fullNameController.text.isEmpty ||
+        cellPhoneController.text.isEmpty ||
+        emailController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+
     final nuevoContacto = TrustedContact(
       trustedContactID: DateTime.now().millisecondsSinceEpoch,
       trustedContactFullName: fullNameController.text,
-      trustedContactCodeCellPhone: int.tryParse(selectedCode) ?? 51,
+      trustedContactCodeCellPhone:
+          int.tryParse(selectedCode.replaceAll("+", "")) ?? 51,
       trustedContactCellPhone: int.tryParse(cellPhoneController.text) ?? 0,
       trustedContactEmail: emailController.text,
     );
 
-    trustedContactService.agregarContacto(nuevoContacto);
+    await trustedContactService.crearTrustedContact(nuevoContacto);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Trusted contact saved successfully')),
+    );
 
     Navigator.pushReplacement(
       context,
@@ -105,9 +118,7 @@ class _PantallaDeAgregarMiContactoState
         ),
         backgroundColor: Colors.white,
         elevation: 0,
-        iconTheme: const IconThemeData(
-          color: Colors.black,
-        ),
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -116,18 +127,12 @@ class _PantallaDeAgregarMiContactoState
           children: [
             const Text(
               'My contact',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             const Text(
               'My contact information',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
             const SizedBox(height: 20),
             TextField(
@@ -165,12 +170,11 @@ class _PantallaDeAgregarMiContactoState
                         });
                       },
                       items: <String>['+1', '+51', '+44', '+91']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
+                          .map((value) => DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              ))
+                          .toList(),
                     ),
                   ),
                 ),

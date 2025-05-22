@@ -6,6 +6,7 @@ import 'package:flutter_smartsecurity/Models/TrustedContact.dart';
 import 'package:flutter_smartsecurity/Models/Passenger.dart';
 import 'package:flutter_smartsecurity/Models/Place.dart';
 import 'package:flutter_smartsecurity/Models/Email.dart';
+import 'package:flutter_smartsecurity/Services/PlaceService.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
@@ -35,21 +36,24 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
   bool isVoiceRecognitionActive = false;
   late GoogleMapController mapController;
   LatLng _currentLocation =
-      const LatLng(-12.0464, -77.0428); // Por defecto Lima
+      const LatLng(-12.0464, -77.0428); // Lima por defecto
+
+  final TextEditingController routeController = TextEditingController();
+  final PlaceService placeService = PlaceService();
+  List<Place> lugares = [];
 
   @override
   void initState() {
     super.initState();
     _obtenerUbicacion();
+    _cargarLugares();
   }
 
   Future<void> _obtenerUbicacion() async {
     Location location = Location();
     bool serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) return;
-    }
+    if (!serviceEnabled) serviceEnabled = await location.requestService();
+    if (!serviceEnabled) return;
 
     PermissionStatus permissionGranted = await location.hasPermission();
     if (permissionGranted == PermissionStatus.denied) {
@@ -64,29 +68,50 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
     });
   }
 
+  Future<void> _cargarLugares() async {
+    final lista = await placeService.listarLugares();
+    setState(() => lugares = lista);
+  }
+
+  Future<void> _buscarLugares(String query) async {
+    if (query.trim().isEmpty) {
+      _cargarLugares();
+    } else {
+      final resultados = await placeService.buscarLugar(query);
+      setState(() => lugares = resultados);
+    }
+  }
+
+  void _seleccionarLugar(Place lugar) {
+    setState(() {
+      routeController.text = lugar.address;
+      lugares = []; // Oculta sugerencias tras seleccionar
+    });
+  }
+
   void enviarMensajeDeAyudaWhatsApp() async {
-    const numeroTelefono = '51994702577';
+    const numero = '51994702577';
     final mensaje = Uri.encodeComponent(
         '¡Necesito ayuda! Por favor, contáctame lo antes posible.');
-    final url = 'https://wa.me/$numeroTelefono?text=$mensaje';
+    final url = 'https://wa.me/$numero?text=$mensaje';
 
     if (await canLaunchUrlString(url)) {
       await launchUrlString(url);
     } else {
-      throw 'No se pudo enviar el mensaje a $numeroTelefono';
+      throw 'No se pudo abrir WhatsApp';
     }
   }
 
   void enviarMensajeDeAyudaSMS() async {
-    const numeroTelefono = '51994702577';
+    const numero = '51994702577';
     final mensaje = Uri.encodeComponent(
         '¡Necesito ayuda! Por favor, contáctame lo antes posible.');
-    final url = 'sms:$numeroTelefono?body=$mensaje';
+    final url = 'sms:$numero?body=$mensaje';
 
     if (await canLaunchUrlString(url)) {
       await launchUrlString(url);
     } else {
-      throw 'No se pudo enviar el mensaje a $numeroTelefono';
+      throw 'No se pudo enviar el SMS';
     }
   }
 
@@ -95,7 +120,7 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
     return Scaffold(
       body: Column(
         children: [
-          // Mapa en tiempo real
+          // Mapa
           SizedBox(
             height: 250,
             child: Stack(
@@ -106,9 +131,7 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
                     zoom: 15,
                   ),
                   myLocationEnabled: true,
-                  onMapCreated: (controller) {
-                    mapController = controller;
-                  },
+                  onMapCreated: (controller) => mapController = controller,
                 ),
                 Align(
                   alignment: Alignment.topLeft,
@@ -119,7 +142,7 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => PantalladeUsuario(
+                            builder: (_) => PantalladeUsuario(
                               driver: widget.driver,
                               trustedContact: widget.trustedContact,
                               place: widget.place,
@@ -139,12 +162,11 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
               ],
             ),
           ),
-          // Contenido principal
+          // Contenido
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: ListView(
                 children: [
                   const Text('¡Hi, User!',
                       style:
@@ -166,14 +188,12 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
                         backgroundColor: Colors.blueAccent,
                         elevation: 10,
                       ),
-                      child: const Text(
-                        'HELP',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      child: const Text('HELP',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          )),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -181,11 +201,8 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
                     children: [
                       Switch(
                         value: isVoiceRecognitionActive,
-                        onChanged: (value) {
-                          setState(() {
-                            isVoiceRecognitionActive = value;
-                          });
-                        },
+                        onChanged: (value) =>
+                            setState(() => isVoiceRecognitionActive = value),
                         activeColor: Colors.indigo,
                       ),
                       const Text('Activate voice recognition'),
@@ -193,6 +210,8 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
                   ),
                   const SizedBox(height: 20),
                   TextField(
+                    controller: routeController,
+                    onChanged: _buscarLugares,
                     decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.search),
                       hintText: 'Enter your route',
@@ -204,6 +223,20 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  if (lugares.isNotEmpty)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: lugares.map((place) {
+                        return ListTile(
+                          leading: const Icon(Icons.location_on,
+                              color: Colors.indigo),
+                          title: Text(place.placeName),
+                          subtitle: Text(place.address),
+                          onTap: () => _seleccionarLugar(place),
+                        );
+                      }).toList(),
+                    ),
                 ],
               ),
             ),
@@ -217,7 +250,7 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => PantalladeSoporte(
+                builder: (_) => PantalladeSoporte(
                   driver: widget.driver,
                   trustedContact: widget.trustedContact,
                   place: widget.place,
@@ -230,13 +263,9 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
         },
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Service',
-          ),
+              icon: Icon(Icons.dashboard), label: 'Service'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.support_agent),
-            label: 'Support',
-          ),
+              icon: Icon(Icons.support_agent), label: 'Support'),
         ],
         selectedItemColor: Colors.indigo,
         unselectedItemColor: Colors.grey,

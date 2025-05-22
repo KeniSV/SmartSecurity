@@ -1,18 +1,36 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter_smartsecurity/Models/Email.dart';
 
 class EmailService {
-  final List<Email> _emails = [];
+  final String baseUrl =
+      'http://localhost:8000'; // Cambia esto si usas otro host
 
-  void agregarIncidente(Email email) {
+  /// Crear un nuevo email/incidente (POST)
+  Future<void> crearEmail(Email email) async {
+    final url = Uri.parse('$baseUrl/email/');
+
+    final Map<String, dynamic> jsonData = {
+      "emailID": email.emailID,
+      "subjectEmail": email.subjectEmail,
+      "descriptionEmail": email.descriptionEmail,
+      "passengerID": email.passengerID,
+    };
+
     try {
-      _emails.add(email);
-      print("Incidente '${email.subjectEmail}' enviado exitosamente.");
-    } catch (e) {
-      print("Error al enviar el incidente: $e");
-    }
-  }
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(jsonData),
+      );
 
-  List<Email> listarIncidentes() {
-    return _emails;
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print('✅ Email creado exitosamente');
+      } else {
+        print('❌ Error al crear email: ${response.body}');
+      }
+    } catch (e) {
+      print('❗ Error de red al crear email: $e');
+    }
   }
 }
