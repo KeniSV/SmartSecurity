@@ -71,11 +71,13 @@ class _PantalladeMiContactoState extends State<PantalladeMiContacto> {
           ),
           TextButton(
             onPressed: () async {
-              await trustedContactService
-                  .eliminarTrustedContact(contact.trustedContactID);
-              Navigator.pop(context);
-              listarContactos();
-              setState(() => selectedContact = null);
+              if (contact.trustedContactID != null) {
+                await trustedContactService
+                    .eliminarTrustedContact(contact.trustedContactID!);
+                Navigator.pop(context);
+                listarContactos();
+                setState(() => selectedContact = null);
+              }
             },
             child: const Text('Yes'),
           ),
@@ -172,7 +174,13 @@ class _PantalladeMiContactoState extends State<PantalladeMiContacto> {
                   MaterialPageRoute(
                     builder: (_) => PantallaDeAgregarMiContacto(
                       driver: widget.driver,
-                      trustedcontact: widget.trustedContact,
+                      trustedcontact: TrustedContact(
+                        trustedContactID: null,
+                        trustedContactFullName: '',
+                        trustedContactCodeCellPhone: 51,
+                        trustedContactCellPhone: 0,
+                        trustedContactEmail: '',
+                      ),
                       place: widget.place,
                       passenger: widget.passenger,
                       email: widget.email,

@@ -247,7 +247,20 @@ class _PantalladeMiInformaciondeCuentadeUsuarioState
                   style: TextStyle(color: Colors.blue)),
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PantalladeInicio(
+                      passenger: widget.passenger,
+                      driver: widget.driver,
+                      trustedContact: widget.trustedContact,
+                      place: widget.place,
+                      email: widget.email,
+                    ),
+                  ),
+                );
+              },
               child: const Text("Log out", style: TextStyle(color: Colors.red)),
             ),
             TextButton(

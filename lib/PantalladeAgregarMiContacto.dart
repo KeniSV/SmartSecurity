@@ -67,7 +67,6 @@ class _PantallaDeAgregarMiContactoState
     }
 
     final nuevoContacto = TrustedContact(
-      trustedContactID: DateTime.now().millisecondsSinceEpoch,
       trustedContactFullName: fullNameController.text,
       trustedContactCodeCellPhone:
           int.tryParse(selectedCode.replaceAll("+", "")) ?? 51,

@@ -21,9 +21,9 @@ class MyApp extends StatelessWidget {
       passengerfirstName: 'Keni',
       passengerlastname: 'Sanchez Villogas',
       passengeremail: 'u202018789@upc.edu.pe',
-      passengerdocumentID: 75528813,
+      passengerdocumentID: 75528888,
       passengerdocumentType: 'DNI',
-      passengercellPhone: 961465100,
+      passengercellPhone: 961466666,
       passengercodecellPhone: 51,
       passengerpassword: 'miContrasenaPasajeroSegura123',
     );
