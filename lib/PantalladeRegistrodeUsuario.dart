@@ -6,6 +6,7 @@ import 'package:flutter_smartsecurity/Models/Driver.dart';
 import 'package:flutter_smartsecurity/Models/TrustedContact.dart';
 import 'package:flutter_smartsecurity/Models/Place.dart';
 import 'package:flutter_smartsecurity/Models/Email.dart';
+import 'package:flutter_smartsecurity/Services/PassengerService.dart';
 
 class PantalladeRegistrodeUsuario extends StatefulWidget {
   final Passenger passenger;
@@ -30,6 +31,8 @@ class PantalladeRegistrodeUsuario extends StatefulWidget {
 
 class _PantalladeRegistrodeUsuarioState
     extends State<PantalladeRegistrodeUsuario> {
+  final PassengerService passengerService = PassengerService();
+
   late TextEditingController emailController;
   late TextEditingController passwordController;
   bool rememberMe = false;
@@ -48,79 +51,90 @@ class _PantalladeRegistrodeUsuarioState
     super.dispose();
   }
 
-  void _validarCredenciales() {
-    final emailIngresado = emailController.text.trim();
-    final passwordIngresado = passwordController.text.trim();
+  Future<void> _validarCredenciales() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
 
-    if (emailIngresado == widget.passenger.passengeremail &&
-        passwordIngresado == widget.passenger.passengerpassword) {
-      bool captchaChecked = false;
+    try {
+      final Passenger? pasajeroAutenticado = await passengerService
+          .buscarPassengerPorEmailYPassword(email, password);
 
-      showDialog(
-        context: context,
-        builder: (_) => StatefulBuilder(
-          builder: (context, setState) => AlertDialog(
-            title: const Text(
-              'Confirm Login',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
-            ),
-            content: Row(
-              children: [
-                Checkbox(
-                  value: captchaChecked,
-                  onChanged: (value) {
-                    setState(() {
-                      captchaChecked = value!;
-                    });
-                  },
+      if (pasajeroAutenticado != null) {
+        bool captchaChecked = false;
+
+        showDialog(
+          context: context,
+          builder: (_) => StatefulBuilder(
+            builder: (context, setState) => AlertDialog(
+              title: const Text(
+                'Confirm Login',
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+              ),
+              content: Row(
+                children: [
+                  Checkbox(
+                    value: captchaChecked,
+                    onChanged: (value) {
+                      setState(() {
+                        captchaChecked = value!;
+                      });
+                    },
+                  ),
+                  const Text("I'm not a robot"),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Cancel"),
                 ),
-                const Text("I'm not a robot"),
+                TextButton(
+                  onPressed: () {
+                    if (captchaChecked) {
+                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PantalladeMenuPrincipal(
+                            driver: widget.driver,
+                            trustedContact: widget.trustedContact,
+                            place: widget.place,
+                            passenger: pasajeroAutenticado,
+                            email: widget.email,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  child: const Text("Continue"),
+                ),
               ],
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Cancel"),
-              ),
-              TextButton(
-                onPressed: () {
-                  if (captchaChecked) {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => PantalladeMenuPrincipal(
-                          driver: widget.driver,
-                          trustedContact: widget.trustedContact,
-                          place: widget.place,
-                          passenger: widget.passenger,
-                          email: widget.email,
-                        ),
-                      ),
-                    );
-                  }
-                },
-                child: const Text("Continue"),
-              ),
-            ],
           ),
-        ),
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('Login Failed'),
-          content: const Text('Invalid email or password.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            )
-          ],
-        ),
-      );
+        );
+      } else {
+        _mostrarError('Invalid email or password.');
+      }
+    } catch (e) {
+      _mostrarError('Error during login: $e');
     }
+  }
+
+  void _mostrarError(String mensaje) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Login Failed'),
+        content: Text(mensaje),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          )
+        ],
+      ),
+    );
   }
 
   @override
@@ -184,35 +198,12 @@ class _PantalladeRegistrodeUsuarioState
                         style: TextStyle(fontSize: 16, color: Colors.white),
                       ),
                       const SizedBox(height: 20),
-                      TextField(
-                        controller: emailController,
-                        decoration: InputDecoration(
-                          hintText: 'Enter your email',
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(
-                              vertical: 16, horizontal: 20),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                      ),
+                      _buildTextField('Enter your email', emailController),
                       const SizedBox(height: 16),
-                      TextField(
-                        controller: passwordController,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          hintText: 'Enter the password',
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(
-                              vertical: 16, horizontal: 20),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
+                      _buildTextField(
+                        'Enter the password',
+                        passwordController,
+                        isPassword: true,
                       ),
                       const SizedBox(height: 16),
                       Row(
@@ -227,9 +218,7 @@ class _PantalladeRegistrodeUsuarioState
                               style: TextStyle(color: Colors.white)),
                           const Spacer(),
                           GestureDetector(
-                            onTap: () {
-                              // Acción "Forgot password"
-                            },
+                            onTap: () {},
                             child: const Text(
                               'Forgot password?',
                               style: TextStyle(
@@ -264,6 +253,25 @@ class _PantalladeRegistrodeUsuarioState
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(String hint, TextEditingController controller,
+      {bool isPassword = false}) {
+    return TextField(
+      controller: controller,
+      obscureText: isPassword,
+      decoration: InputDecoration(
+        hintText: hint,
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: BorderSide.none,
         ),
       ),
     );

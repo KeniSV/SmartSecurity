@@ -53,26 +53,31 @@ class _PantalladeMiInformaciondeCuentadeUsuarioState
   @override
   void initState() {
     super.initState();
-    firstNameController.text = widget.driver.passengerfirstName;
-    lastNameController.text = widget.driver.passengerlastname;
-    emailController.text = widget.driver.passengeremail;
-    cellPhoneController.text = widget.driver.passengercellPhone.toString();
-    documentIDController.text = widget.driver.passengerdocumentID.toString();
+    firstNameController.text = widget.passenger.passengerfirstName;
+    lastNameController.text = widget.passenger.passengerlastname;
+    emailController.text = widget.passenger.passengeremail;
+    cellPhoneController.text = widget.passenger.passengercellPhone.toString();
+    documentIDController.text = widget.passenger.passengerdocumentID.toString();
     licenseNumberController.text = widget.driver.licenseNumber;
     licensePlateController.text = widget.driver.licensePlate;
 
-    final codigo = '+${widget.driver.passengercodecellPhone}';
-    selectedCode = codigosDisponibles.contains(codigo) ? codigo : null;
+    final codigo = '+${widget.passenger.passengercodecellPhone}';
+    selectedCode = codigosDisponibles.contains(codigo) ? codigo : '+51';
 
-    selectedDocumentType = widget.driver.passengerdocumentType;
-    selectedLicenseCategory = widget.driver.licenseCategory;
+    selectedDocumentType = widget.passenger.passengerdocumentType.isNotEmpty
+        ? widget.passenger.passengerdocumentType
+        : 'DNI';
+
+    selectedLicenseCategory = widget.driver.licenseCategory.isNotEmpty
+        ? widget.driver.licenseCategory
+        : 'A';
 
     isDriver = widget.driver.drives;
   }
 
   Future<void> guardarCambios() async {
     final updatedPassenger = Passenger(
-      passengerID: widget.driver.passengerID,
+      passengerID: widget.passenger.passengerID,
       passengerfirstName: firstNameController.text,
       passengerlastname: lastNameController.text,
       passengeremail: emailController.text,
@@ -81,12 +86,12 @@ class _PantalladeMiInformaciondeCuentadeUsuarioState
       passengercellPhone: int.tryParse(cellPhoneController.text) ?? 0,
       passengercodecellPhone:
           int.tryParse(selectedCode?.replaceAll('+', '') ?? '51') ?? 51,
-      passengerpassword: widget.driver.passengerpassword,
+      passengerpassword: widget.passenger.passengerpassword,
     );
 
     if (isDriver) {
       final updatedDriver = Driver(
-        passengerID: updatedPassenger.passengerID,
+        passengerID: updatedPassenger.passengerID ?? 0,
         passengerfirstName: updatedPassenger.passengerfirstName,
         passengerlastname: updatedPassenger.passengerlastname,
         passengeremail: updatedPassenger.passengeremail,
@@ -96,7 +101,7 @@ class _PantalladeMiInformaciondeCuentadeUsuarioState
         passengercodecellPhone: updatedPassenger.passengercodecellPhone,
         passengerpassword: updatedPassenger.passengerpassword,
         drives: true,
-        licenseCategory: selectedLicenseCategory ?? '',
+        licenseCategory: selectedLicenseCategory ?? 'A',
         licenseNumber: licenseNumberController.text,
         hasCar: widget.driver.hasCar,
         licensePlate: licensePlateController.text,
@@ -104,6 +109,29 @@ class _PantalladeMiInformaciondeCuentadeUsuarioState
       await driverService.actualizarDriver(updatedDriver);
     } else {
       await passengerService.actualizarPassenger(updatedPassenger);
+    }
+
+    final refreshedPassenger =
+        await passengerService.buscarPassengerPorEmailYPassword(
+            updatedPassenger.passengeremail,
+            updatedPassenger.passengerpassword);
+
+    if (refreshedPassenger != null) {
+      setState(() {
+        widget.passenger.passengerfirstName =
+            refreshedPassenger.passengerfirstName;
+        widget.passenger.passengerlastname =
+            refreshedPassenger.passengerlastname;
+        widget.passenger.passengeremail = refreshedPassenger.passengeremail;
+        widget.passenger.passengerdocumentID =
+            refreshedPassenger.passengerdocumentID;
+        widget.passenger.passengerdocumentType =
+            refreshedPassenger.passengerdocumentType;
+        widget.passenger.passengercellPhone =
+            refreshedPassenger.passengercellPhone;
+        widget.passenger.passengercodecellPhone =
+            refreshedPassenger.passengercodecellPhone;
+      });
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -128,11 +156,11 @@ class _PantalladeMiInformaciondeCuentadeUsuarioState
             TextButton(
               onPressed: () async {
                 Navigator.pop(context);
+                final id = widget.passenger.passengerID ?? 0;
                 if (isDriver) {
-                  await driverService.eliminarDriver(widget.driver.passengerID);
+                  await driverService.eliminarDriver(id);
                 } else {
-                  await passengerService
-                      .eliminarPassenger(widget.driver.passengerID);
+                  await passengerService.eliminarPassenger(id);
                 }
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Account deleted successfully')),

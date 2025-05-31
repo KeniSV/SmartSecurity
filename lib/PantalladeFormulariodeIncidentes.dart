@@ -160,7 +160,7 @@ class _PantalladeFormulariodeIncidentesState
       emailID: DateTime.now().millisecondsSinceEpoch,
       subjectEmail: subjectController.text,
       descriptionEmail: descriptionController.text,
-      passengerID: widget.passenger.passengerID,
+      passengerID: widget.passenger.passengerID ?? 0,
       passengerfirstName: widget.passenger.passengerfirstName,
       passengerlastname: widget.passenger.passengerlastname,
       passengeremail: widget.passenger.passengeremail,
@@ -170,7 +170,7 @@ class _PantalladeFormulariodeIncidentesState
       passengercodecellPhone: widget.passenger.passengercodecellPhone,
       passengerpassword: widget.passenger.passengerpassword,
       isActive: widget.passenger.isActive,
-      lastLogin: widget.passenger.lastLogin,
+      lastLogin: DateTime.now(), // reemplazo válido
     );
 
     await emailService.crearEmail(incidente);

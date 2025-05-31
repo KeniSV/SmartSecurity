@@ -21,9 +21,9 @@ class MyApp extends StatelessWidget {
       passengerfirstName: 'Keni',
       passengerlastname: 'Sanchez Villogas',
       passengeremail: 'u202018789@upc.edu.pe',
-      passengerdocumentID: 75528888,
+      passengerdocumentID: 75528813,
       passengerdocumentType: 'DNI',
-      passengercellPhone: 961466666,
+      passengercellPhone: 961465100,
       passengercodecellPhone: 51,
       passengerpassword: 'miContrasenaPasajeroSegura123',
     );
@@ -46,6 +46,7 @@ class MyApp extends StatelessWidget {
       licensePlate: 'ABC-123',
     );
 
+    // Contacto de confianza
     final trustedContact = TrustedContact(
       trustedContactID: 1,
       trustedContactFullName: 'Ingrid Villogas',
@@ -54,25 +55,27 @@ class MyApp extends StatelessWidget {
       trustedContactEmail: 'ingridr@hotmail.com',
     );
 
+    // Lugar
     final place = Place(
       placeID: 1,
       placeName: 'Universidad Peruana de Ciencias Aplicadas',
       address: 'Av. Universitaria 1801, San Isidro, Lima',
     );
 
+    // Email de incidente
     final email = Email(
       emailID: 1,
       subjectEmail: 'Error en el botón',
       descriptionEmail: 'Cuando presiono el botón no envía la solicitud',
-      passengerID: 1,
-      passengerfirstName: 'Keni',
-      passengerlastname: 'Sanchez',
-      passengeremail: 'skeni8892@gmail.com',
-      passengerdocumentID: 75528813,
-      passengerdocumentType: 'DNI',
-      passengercellPhone: 961465100,
-      passengercodecellPhone: 51,
-      passengerpassword: 'miContrasenaPasajeroSegura123',
+      passengerID: passenger.passengerID ?? 0, // manejo seguro
+      passengerfirstName: passenger.passengerfirstName,
+      passengerlastname: passenger.passengerlastname,
+      passengeremail: passenger.passengeremail,
+      passengerdocumentID: passenger.passengerdocumentID,
+      passengerdocumentType: passenger.passengerdocumentType,
+      passengercellPhone: passenger.passengercellPhone,
+      passengercodecellPhone: passenger.passengercodecellPhone,
+      passengerpassword: passenger.passengerpassword,
     );
 
     return MaterialApp(

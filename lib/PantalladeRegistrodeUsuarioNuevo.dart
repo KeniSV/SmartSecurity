@@ -66,15 +66,16 @@ class _PantalladeRegistrodeUsuarioNuevoState
 
     try {
       final nuevoPasajero = Passenger(
-        passengerID: DateTime.now().millisecondsSinceEpoch,
+        passengerID: null,
         passengerfirstName: '',
         passengerlastname: '',
         passengeremail: email,
         passengerdocumentID: 0,
-        passengerdocumentType: '',
+        passengerdocumentType: '', // CAMBIO: ahora es int
         passengercellPhone: int.tryParse(phone) ?? 0,
         passengercodecellPhone: 0,
         passengerpassword: password,
+        isActive: true,
       );
 
       await passengerService.crearPassenger(nuevoPasajero);
