@@ -109,13 +109,15 @@ class _PantalladePalabraClaveState extends State<PantalladePalabraClave> {
                           itemCount: _keywords.length,
                           itemBuilder: (context, index) {
                             final keyword = _keywords[index];
+                            final id = keyword.keywordID;
+
+                            if (id == null) return const SizedBox.shrink();
+
                             return CheckboxListTile(
                               title: Text(keyword.keywordName),
-                              value: _selectedKeywordIDs
-                                  .contains(keyword.keywordID),
+                              value: _selectedKeywordIDs.contains(id),
                               onChanged: (bool? value) {
-                                _toggleSeleccion(
-                                    keyword.keywordID, value ?? false);
+                                _toggleSeleccion(id, value ?? false);
                               },
                               controlAffinity: ListTileControlAffinity.leading,
                             );

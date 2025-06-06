@@ -20,7 +20,7 @@ class _PantalladeAgregarPalabraClaveState
     final nombre = _keywordController.text.trim();
 
     if (nombre.isEmpty) {
-      _mostrarDialogo("Please enter a keyword.");
+      _mostrarDialogo("⚠️ Campo vacío, completar.");
       return;
     }
 
@@ -28,13 +28,13 @@ class _PantalladeAgregarPalabraClaveState
       _isLoading = true;
     });
 
-    final nuevaKeyword = Keyword(keywordID: 0, keywordName: nombre);
+    final nuevaKeyword = Keyword(keywordName: nombre); // Sin keywordID
 
     try {
       await _keywordService.crearKeyword(nuevaKeyword);
       _mostrarDialogo("✅ Keyword saved successfully", cerrarPantalla: true);
     } catch (e) {
-      _mostrarDialogo("❌ Failed to save keyword: $e");
+      _mostrarDialogo("❌ Error al crear palabra clave:\n$e");
     } finally {
       setState(() {
         _isLoading = false;
@@ -50,8 +50,18 @@ class _PantalladeAgregarPalabraClaveState
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
-              if (cerrarPantalla) Navigator.pop(context);
+              Navigator.pop(context); // Cierra el diálogo
+              if (cerrarPantalla) {
+                Navigator.pop(context); // Cierra la pantalla actual
+
+                // Muestra SnackBar con mensaje
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Palabra clave agregada"),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              }
             },
             child: const Text("OK"),
           ),

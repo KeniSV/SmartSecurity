@@ -46,11 +46,20 @@ class _PantalladeRegistrodeUsuarioNuevoState
     final password = passwordController.text.trim();
     final confirmPassword = confirmPasswordController.text.trim();
 
+    if (email.isEmpty &&
+        phone.isEmpty &&
+        password.isEmpty &&
+        confirmPassword.isEmpty) {
+      _mostrarDialogo("Los campos no pueden estar vacíos.");
+      return;
+    }
+
     if (email.isEmpty ||
         phone.isEmpty ||
         password.isEmpty ||
         confirmPassword.isEmpty) {
-      _mostrarDialogo("Please fill in all fields.");
+      _mostrarDialogo(
+          "Campos vacíos, por favor complete los campos faltantes.");
       return;
     }
 
@@ -71,7 +80,7 @@ class _PantalladeRegistrodeUsuarioNuevoState
         passengerlastname: '',
         passengeremail: email,
         passengerdocumentID: 0,
-        passengerdocumentType: '', // CAMBIO: ahora es int
+        passengerdocumentType: '',
         passengercellPhone: int.tryParse(phone) ?? 0,
         passengercodecellPhone: 0,
         passengerpassword: password,
@@ -80,31 +89,36 @@ class _PantalladeRegistrodeUsuarioNuevoState
 
       await passengerService.crearPassenger(nuevoPasajero);
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => PantalladeRegistrodeUsuario(
-            passenger: nuevoPasajero,
-            driver: widget.driver,
-            trustedContact: widget.trustedContact,
-            place: widget.place,
-            email: widget.email,
+      _mostrarDialogo("¡Bienvenid@!, tu registro fue exitosa.", onClose: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PantalladeRegistrodeUsuario(
+              passenger: nuevoPasajero,
+              driver: widget.driver,
+              trustedContact: widget.trustedContact,
+              place: widget.place,
+              email: widget.email,
+            ),
           ),
-        ),
-      );
+        );
+      });
     } catch (e) {
       _mostrarDialogo("Error while registering: $e");
     }
   }
 
-  void _mostrarDialogo(String mensaje) {
+  void _mostrarDialogo(String mensaje, {VoidCallback? onClose}) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         content: Text(mensaje),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              Navigator.pop(context);
+              if (onClose != null) onClose();
+            },
             child: const Text("OK"),
           ),
         ],

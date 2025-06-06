@@ -9,8 +9,9 @@ class KeywordService {
   /// Crear palabra clave (POST)
   Future<void> crearKeyword(Keyword keyword) async {
     final url = Uri.parse('$baseUrl/keyword/');
+
+    // Solo incluir keywordName al crear
     final body = {
-      "keywordID": keyword.keywordID,
       "keywordName": keyword.keywordName,
     };
 
@@ -25,9 +26,11 @@ class KeywordService {
         print("✅ Palabra clave creada exitosamente");
       } else {
         print("❌ Error al crear palabra clave: ${response.body}");
+        throw Exception("Error al crear palabra clave");
       }
     } catch (e) {
       print("❗ Error de red al crear palabra clave: $e");
+      throw Exception("Error de red al crear palabra clave");
     }
   }
 
@@ -62,9 +65,11 @@ class KeywordService {
         print("✅ Palabra clave eliminada exitosamente");
       } else {
         print("❌ Error al eliminar palabra clave: ${response.body}");
+        throw Exception("Error al eliminar palabra clave");
       }
     } catch (e) {
       print("❗ Error de red al eliminar palabra clave: $e");
+      throw Exception("Error de red al eliminar palabra clave");
     }
   }
 
@@ -87,9 +92,11 @@ class KeywordService {
         print("✅ Palabra clave actualizada exitosamente");
       } else {
         print("❌ Error al actualizar palabra clave: ${response.body}");
+        throw Exception("Error al actualizar palabra clave");
       }
     } catch (e) {
       print("❗ Error de red al actualizar palabra clave: $e");
+      throw Exception("Error de red al actualizar palabra clave");
     }
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_smartsecurity/PantalladeUsuario.dart';
 import 'package:flutter_smartsecurity/PantalladeSoporte.dart';
@@ -7,6 +9,12 @@ import 'package:flutter_smartsecurity/Models/Passenger.dart';
 import 'package:flutter_smartsecurity/Models/Place.dart';
 import 'package:flutter_smartsecurity/Models/Email.dart';
 import 'package:flutter_smartsecurity/Services/PlaceService.dart';
+import 'package:flutter_smartsecurity/Services/TrustedContactService.dart';
+import 'package:flutter_smartsecurity/Services/KeywordService.dart';
+import 'package:record/record.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
@@ -35,11 +43,12 @@ class PantalladeMenuPrincipal extends StatefulWidget {
 class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
   bool isVoiceRecognitionActive = false;
   late GoogleMapController mapController;
-  LatLng _currentLocation =
-      const LatLng(-12.0464, -77.0428); // Lima por defecto
+  LatLng _currentLocation = const LatLng(-12.0464, -77.0428);
 
   final TextEditingController routeController = TextEditingController();
   final PlaceService placeService = PlaceService();
+  final TrustedContactService _trustedContactService = TrustedContactService();
+  final KeywordService _keywordService = KeywordService();
   List<Place> lugares = [];
 
   @override
@@ -51,21 +60,17 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
 
   Future<void> _obtenerUbicacion() async {
     Location location = Location();
-    bool serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) serviceEnabled = await location.requestService();
-    if (!serviceEnabled) return;
-
-    PermissionStatus permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) return;
+    if (!await location.serviceEnabled()) {
+      if (!await location.requestService()) return;
+    }
+    var permission = await location.hasPermission();
+    if (permission == PermissionStatus.denied) {
+      permission = await location.requestPermission();
+      if (permission != PermissionStatus.granted) return;
     }
 
-    final userLocation = await location.getLocation();
-    setState(() {
-      _currentLocation =
-          LatLng(userLocation.latitude!, userLocation.longitude!);
-    });
+    final loc = await location.getLocation();
+    setState(() => _currentLocation = LatLng(loc.latitude!, loc.longitude!));
   }
 
   Future<void> _cargarLugares() async {
@@ -85,33 +90,80 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
   void _seleccionarLugar(Place lugar) {
     setState(() {
       routeController.text = lugar.address;
-      lugares = []; // Oculta sugerencias tras seleccionar
+      lugares = [];
     });
   }
 
-  void enviarMensajeDeAyudaWhatsApp() async {
-    const numero = '51994702577';
-    final mensaje = Uri.encodeComponent(
-        '¡Necesito ayuda! Por favor, contáctame lo antes posible.');
-    final url = 'https://wa.me/$numero?text=$mensaje';
+  Future<void> grabarYVerificarPalabraClave() async {
+    final record = Record();
+    final hasPermission = await record.hasPermission();
+    if (!hasPermission) return;
 
-    if (await canLaunchUrlString(url)) {
-      await launchUrlString(url);
+    final dir = await getTemporaryDirectory();
+    final path = p.join(dir.path, 'audio.wav');
+
+    await record.start(
+      path: path,
+      encoder: AudioEncoder.wav,
+      bitRate: 128000,
+      samplingRate: 16000,
+    );
+
+    await Future.delayed(const Duration(seconds: 5));
+    await record.stop();
+
+    final file = File(path);
+    if (!file.existsSync()) return;
+
+    final req = http.MultipartRequest(
+      'POST',
+      Uri.parse('http://localhost:8000/transcribe/'),
+    );
+    req.files.add(await http.MultipartFile.fromPath('file', file.path));
+
+    final response = await req.send();
+    final responseBody = await response.stream.bytesToString();
+
+    if (response.statusCode == 200) {
+      final transcripcion =
+          jsonDecode(responseBody)['text'].toString().toLowerCase();
+      final keywords = await _keywordService.listarKeywords();
+      final lista = keywords.map((k) => k.keywordName.toLowerCase()).toList();
+
+      final coincidencia = lista.any((k) => transcripcion.contains(k));
+      if (coincidencia) {
+        await enviarMensajesDeAyuda();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("✅ Alerta enviada a contactos.")),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("No se detectó ninguna palabra clave.")),
+        );
+      }
     } else {
-      throw 'No se pudo abrir WhatsApp';
+      debugPrint("❌ Error al transcribir: $responseBody");
     }
   }
 
-  void enviarMensajeDeAyudaSMS() async {
-    const numero = '51994702577';
-    final mensaje = Uri.encodeComponent(
-        '¡Necesito ayuda! Por favor, contáctame lo antes posible.');
-    final url = 'sms:$numero?body=$mensaje';
+  Future<void> enviarMensajesDeAyuda() async {
+    final contactos = await _trustedContactService.listarTrustedContacts();
+    if (contactos.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("⚠️ No hay contactos de confianza.")),
+      );
+      return;
+    }
 
-    if (await canLaunchUrlString(url)) {
-      await launchUrlString(url);
-    } else {
-      throw 'No se pudo enviar el SMS';
+    for (final contact in contactos) {
+      final numero = '51${contact.trustedContactCellPhone}';
+      final mensaje = Uri.encodeComponent(
+          '¡Necesito ayuda! Por favor, contáctame lo antes posible.');
+      final wa = 'https://wa.me/$numero?text=$mensaje';
+      final sms = 'sms:$numero?body=$mensaje';
+
+      if (await canLaunchUrlString(wa)) await launchUrlString(wa);
+      if (await canLaunchUrlString(sms)) await launchUrlString(sms);
     }
   }
 
@@ -120,7 +172,6 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
     return Scaffold(
       body: Column(
         children: [
-          // Mapa
           SizedBox(
             height: 250,
             child: Stack(
@@ -162,7 +213,6 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
               ],
             ),
           ),
-          // Contenido
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -179,8 +229,9 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
                   Center(
                     child: ElevatedButton(
                       onPressed: () {
-                        enviarMensajeDeAyudaWhatsApp();
-                        enviarMensajeDeAyudaSMS();
+                        isVoiceRecognitionActive
+                            ? grabarYVerificarPalabraClave()
+                            : enviarMensajesDeAyuda();
                       },
                       style: ElevatedButton.styleFrom(
                         shape: const CircleBorder(),
@@ -188,12 +239,13 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
                         backgroundColor: Colors.blueAccent,
                         elevation: 10,
                       ),
-                      child: const Text('HELP',
-                          style: TextStyle(
+                      child: const Text(
+                        'HELP',
+                        style: TextStyle(
                             color: Colors.white,
                             fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          )),
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),

@@ -55,6 +55,15 @@ class _PantalladeRegistrodeUsuarioState
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
+    if (email.isEmpty && password.isEmpty) {
+      _mostrarDialogo("Los campos no pueden estar vacíos.");
+      return;
+    } else if (email.isEmpty || password.isEmpty) {
+      _mostrarDialogo(
+          "Campos vacíos, por favor complete los campos faltantes.");
+      return;
+    }
+
     try {
       final Passenger? pasajeroAutenticado = await passengerService
           .buscarPassengerPorEmailYPassword(email, password);
@@ -93,6 +102,12 @@ class _PantalladeRegistrodeUsuarioState
                   onPressed: () {
                     if (captchaChecked) {
                       Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              "¡Bienvenid@!, tu inicio de sesión fue exitosa."),
+                        ),
+                      );
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -114,14 +129,14 @@ class _PantalladeRegistrodeUsuarioState
           ),
         );
       } else {
-        _mostrarError('Invalid email or password.');
+        _mostrarDialogo('Invalid email or password.');
       }
     } catch (e) {
-      _mostrarError('Error during login: $e');
+      _mostrarDialogo('Error during login: $e');
     }
   }
 
-  void _mostrarError(String mensaje) {
+  void _mostrarDialogo(String mensaje) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(

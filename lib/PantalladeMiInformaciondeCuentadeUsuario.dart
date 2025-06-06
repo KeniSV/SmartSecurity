@@ -8,6 +8,7 @@ import 'package:flutter_smartsecurity/Models/Passenger.dart';
 import 'package:flutter_smartsecurity/Models/TrustedContact.dart';
 import 'package:flutter_smartsecurity/Models/Place.dart';
 import 'package:flutter_smartsecurity/Models/Email.dart';
+import 'package:flutter_smartsecurity/PantalladeActualizarContrasenia.dart';
 
 class PantalladeMiInformaciondeCuentadeUsuario extends StatefulWidget {
   final Driver driver;
@@ -142,47 +143,47 @@ class _PantalladeMiInformaciondeCuentadeUsuarioState
   }
 
   Future<void> _eliminarCuenta() async {
-    showDialog(
+    final confirm = await showDialog<bool>(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Warning', style: TextStyle(color: Colors.red)),
-          content: const Text('Are you sure you want to delete your account?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                final id = widget.passenger.passengerID ?? 0;
-                if (isDriver) {
-                  await driverService.eliminarDriver(id);
-                } else {
-                  await passengerService.eliminarPassenger(id);
-                }
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Account deleted successfully')),
-                );
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PantalladeInicio(
-                      passenger: widget.passenger,
-                      driver: widget.driver,
-                      trustedContact: widget.trustedContact,
-                      place: widget.place,
-                      email: widget.email,
-                    ),
-                  ),
-                );
-              },
-              child: const Text('Yes'),
-            ),
-          ],
-        );
-      },
+      builder: (context) => AlertDialog(
+        title: const Text('Delete account',
+            style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+        content: const Text('Are you sure you want to delete your account?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel', style: TextStyle(color: Colors.blue)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Yes', style: TextStyle(color: Colors.blue)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    final id = widget.passenger.passengerID ?? 0;
+    if (isDriver) {
+      await driverService.eliminarDriver(id);
+    } else {
+      await passengerService.eliminarPassenger(id);
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Account deleted successfully')),
+    );
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PantalladeInicio(
+          passenger: widget.passenger,
+          driver: widget.driver,
+          trustedContact: widget.trustedContact,
+          place: widget.place,
+          email: widget.email,
+        ),
+      ),
     );
   }
 
@@ -270,7 +271,20 @@ class _PantalladeMiInformaciondeCuentadeUsuarioState
               _buildTextField(licensePlateController, 'N° License plate'),
             const SizedBox(height: 24),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PantalladeActualizarContrasenia(
+                      passenger: widget.passenger,
+                      driver: widget.driver,
+                      trustedContact: widget.trustedContact,
+                      place: widget.place,
+                      email: widget.email,
+                    ),
+                  ),
+                );
+              },
               child: const Text("Change password",
                   style: TextStyle(color: Colors.blue)),
             ),

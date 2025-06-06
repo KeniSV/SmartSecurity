@@ -6,7 +6,9 @@ import 'package:flutter_smartsecurity/Models/Place.dart';
 import 'package:flutter_smartsecurity/Models/Email.dart';
 import 'package:flutter_smartsecurity/Models/Passenger.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding
+      .ensureInitialized(); // ✅ Previene errores en canales/platform
   runApp(const MyApp());
 }
 
@@ -15,7 +17,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Usuario común (passenger)
     final passenger = Passenger(
       passengerID: 1,
       passengerfirstName: 'Keni',
@@ -28,7 +29,6 @@ class MyApp extends StatelessWidget {
       passengerpassword: 'miContrasenaPasajeroSegura123',
     );
 
-    // Usuario conductor (driver)
     final driver = Driver(
       passengerID: 1,
       passengerfirstName: 'Keni',
@@ -46,7 +46,6 @@ class MyApp extends StatelessWidget {
       licensePlate: 'ABC-123',
     );
 
-    // Contacto de confianza
     final trustedContact = TrustedContact(
       trustedContactID: 1,
       trustedContactFullName: 'Ingrid Villogas',
@@ -55,19 +54,17 @@ class MyApp extends StatelessWidget {
       trustedContactEmail: 'ingridr@hotmail.com',
     );
 
-    // Lugar
     final place = Place(
       placeID: 1,
       placeName: 'Universidad Peruana de Ciencias Aplicadas',
       address: 'Av. Universitaria 1801, San Isidro, Lima',
     );
 
-    // Email de incidente
     final email = Email(
       emailID: 1,
       subjectEmail: 'Error en el botón',
       descriptionEmail: 'Cuando presiono el botón no envía la solicitud',
-      passengerID: passenger.passengerID ?? 0, // manejo seguro
+      passengerID: passenger.passengerID ?? 0,
       passengerfirstName: passenger.passengerfirstName,
       passengerlastname: passenger.passengerlastname,
       passengeremail: passenger.passengeremail,
