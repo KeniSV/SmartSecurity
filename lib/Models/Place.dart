@@ -1,10 +1,10 @@
 class Place {
-  int placeID;
+  int? placeID; // ✅ Ahora es opcional
   String placeName;
   String address;
 
   Place({
-    required this.placeID,
+    this.placeID, // ✅ Ya no es obligatorio
     required this.placeName,
     required this.address,
   });
@@ -19,7 +19,8 @@ class Place {
 
   Map<String, dynamic> toJson() {
     return {
-      'placeID': placeID,
+      if (placeID != null)
+        'placeID': placeID, // ✅ Solo se incluye si no es nulo
       'placeName': placeName,
       'address': address,
     };

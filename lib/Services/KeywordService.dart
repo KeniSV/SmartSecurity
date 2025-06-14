@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:flutter_smartsecurity/Models/Keyword.dart';
 
@@ -10,7 +11,6 @@ class KeywordService {
   Future<void> crearKeyword(Keyword keyword) async {
     final url = Uri.parse('$baseUrl/keyword/');
 
-    // Solo incluir keywordName al crear
     final body = {
       "keywordName": keyword.keywordName,
     };
@@ -97,6 +97,28 @@ class KeywordService {
     } catch (e) {
       print("❗ Error de red al actualizar palabra clave: $e");
       throw Exception("Error de red al actualizar palabra clave");
+    }
+  }
+
+  /// Transcribir audio (POST)
+  Future<String> transcribirAudio(Uint8List audioBytes) async {
+    final url = Uri.parse('$baseUrl/transcribe/');
+
+    final request = http.MultipartRequest('POST', url);
+    request.files.add(http.MultipartFile.fromBytes(
+      'file',
+      audioBytes,
+      filename: 'audio.wav',
+    ));
+
+    final response = await request.send();
+    final body = await response.stream.bytesToString();
+
+    if (response.statusCode == 200) {
+      return jsonDecode(body)['text'] ?? '';
+    } else {
+      print("❌ Error al transcribir audio: $body");
+      throw Exception("Error al transcribir audio");
     }
   }
 }

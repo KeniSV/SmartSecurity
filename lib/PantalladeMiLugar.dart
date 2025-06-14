@@ -43,14 +43,11 @@ class _PantalladeMiLugarState extends State<PantalladeMiLugar> {
     });
   }
 
-  void buscarLugares(String query) {
-    final filtro = todosLosLugares.where((lugar) {
-      return lugar.placeName.toLowerCase().contains(query.toLowerCase());
-    }).toList();
-
+  void buscarLugares(String query) async {
+    final resultados = await placeService.buscarLugar(query);
     setState(() {
       searchQuery = query;
-      lugaresFiltrados = filtro;
+      lugaresFiltrados = resultados;
     });
   }
 
@@ -65,24 +62,39 @@ class _PantalladeMiLugarState extends State<PantalladeMiLugar> {
 
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (context) => AlertDialog(
         title: const Text(
-          'Delete Place',
-          style: TextStyle(color: Colors.red),
+          'Are you sure you want to delete the place?',
+          style: TextStyle(
+            color: Colors.red,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        content: const Text('Are you sure you want to delete this place?'),
+        actionsAlignment: MainAxisAlignment.end,
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context), // Cancel
-            child: const Text('Cancel'),
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.blue),
+            ),
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context); // Cerrar diálogo
-              await placeService.eliminarLugar(lugarSeleccionado!.placeID);
+              Navigator.pop(context);
+              await placeService.eliminarLugar(lugarSeleccionado!.placeID!);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Place successfully removed'),
+                  backgroundColor: Colors.green,
+                ),
+              );
               listarLugares();
             },
-            child: const Text('Yes'),
+            child: const Text(
+              'Yes',
+              style: TextStyle(color: Colors.blue),
+            ),
           ),
         ],
       ),
