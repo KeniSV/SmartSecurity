@@ -10,17 +10,7 @@ class PassengerService {
   Future<void> crearPassenger(Passenger passenger) async {
     final url = Uri.parse('$baseUrl/passenger/');
 
-    final Map<String, dynamic> jsonData = {
-      "passengerfirstName": passenger.passengerfirstName,
-      "passengerlastname": passenger.passengerlastname,
-      "passengeremail": passenger.passengeremail,
-      "passengerdocumentID": passenger.passengerdocumentID,
-      "passengerdocumentType": passenger.passengerdocumentType,
-      "passengercellPhone": passenger.passengercellPhone,
-      "passengercodecellPhone": passenger.passengercodecellPhone,
-      "passengerpassword": passenger.passengerpassword,
-      "isActive": passenger.isActive,
-    };
+    final Map<String, dynamic> jsonData = passenger.toJson();
 
     try {
       final response = await http.post(
@@ -44,17 +34,7 @@ class PassengerService {
   Future<void> actualizarPassenger(Passenger passenger) async {
     final url = Uri.parse('$baseUrl/passenger/${passenger.passengerID}');
 
-    final Map<String, dynamic> jsonData = {
-      "passengerfirstName": passenger.passengerfirstName,
-      "passengerlastname": passenger.passengerlastname,
-      "passengeremail": passenger.passengeremail,
-      "passengerdocumentID": passenger.passengerdocumentID,
-      "passengerdocumentType": passenger.passengerdocumentType,
-      "passengercellPhone": passenger.passengercellPhone,
-      "passengercodecellPhone": passenger.passengercodecellPhone,
-      "passengerpassword": passenger.passengerpassword,
-      "isActive": passenger.isActive,
-    };
+    final Map<String, dynamic> jsonData = passenger.toJson();
 
     try {
       final response = await http.put(

@@ -11,18 +11,30 @@ class Passenger {
   bool isActive;
   DateTime? lastLogin;
 
-  Passenger(
-      {this.passengerID,
-      required this.passengerfirstName,
-      required this.passengerlastname,
-      required this.passengeremail,
-      required this.passengerdocumentID,
-      required this.passengerdocumentType,
-      required this.passengercellPhone,
-      required this.passengercodecellPhone,
-      required this.passengerpassword,
-      this.isActive = true,
-      this.lastLogin});
+  bool drives;
+  String licenseCategory;
+  String licenseNumber;
+  bool hasCar;
+  String licensePlate;
+
+  Passenger({
+    this.passengerID,
+    required this.passengerfirstName,
+    required this.passengerlastname,
+    required this.passengeremail,
+    required this.passengerdocumentID,
+    required this.passengerdocumentType,
+    required this.passengercellPhone,
+    required this.passengercodecellPhone,
+    required this.passengerpassword,
+    this.isActive = true,
+    this.lastLogin,
+    this.drives = false,
+    this.licenseCategory = '',
+    this.licenseNumber = '',
+    this.hasCar = false,
+    this.licensePlate = '',
+  });
 
   Map<String, dynamic> toJson() {
     final data = {
@@ -35,6 +47,11 @@ class Passenger {
       "passengercodecellPhone": passengercodecellPhone,
       "passengerpassword": passengerpassword,
       "isActive": isActive,
+      "drives": drives,
+      "licenseCategory": licenseCategory,
+      "licenseNumber": licenseNumber,
+      "hasCar": hasCar,
+      "licensePlate": licensePlate,
     };
 
     final id = passengerID;
@@ -59,6 +76,11 @@ class Passenger {
       isActive: json["isActive"] ?? true,
       lastLogin:
           json["lastLogin"] != null ? DateTime.parse(json["lastLogin"]) : null,
+      drives: json["drives"] ?? false,
+      licenseCategory: json["licenseCategory"] ?? '',
+      licenseNumber: json["licenseNumber"] ?? '',
+      hasCar: json["hasCar"] ?? false,
+      licensePlate: json["licensePlate"] ?? '',
     );
   }
 }

@@ -115,7 +115,7 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
       samplingRate: 16000,
     );
 
-    await Future.delayed(const Duration(seconds: 10));
+    await Future.delayed(const Duration(seconds: 20));
 
     final path = await record.stop();
     if (path == null) return;

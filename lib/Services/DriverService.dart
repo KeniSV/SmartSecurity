@@ -13,14 +13,14 @@ class DriverService {
     final Map<String, dynamic> jsonData = {
       "passenger": {
         "passengerID": driver.passengerID,
-        "passengerFirstName": driver.passengerfirstName,
-        "passengerLastName": driver.passengerlastname,
-        "passengerEmail": driver.passengeremail,
-        "passengerDocumentID": driver.passengerdocumentID,
-        "passengerDocumentType": int.tryParse(driver.passengerdocumentType),
-        "passengerCellPhone": driver.passengercellPhone,
-        "passengerCodeCellPhone": driver.passengercodecellPhone,
-        "passengerPassword": driver.passengerpassword,
+        "passengerfirstName": driver.passengerfirstName,
+        "passengerlastname": driver.passengerlastname,
+        "passengeremail": driver.passengeremail,
+        "passengerdocumentID": driver.passengerdocumentID,
+        "passengerdocumentType": driver.passengerdocumentType,
+        "passengercellPhone": driver.passengercellPhone,
+        "passengercodecellPhone": driver.passengercodecellPhone,
+        "passengerpassword": driver.passengerpassword,
       },
       "drives": driver.drives,
       "licenseCategory": driver.licenseCategory,
@@ -53,14 +53,14 @@ class DriverService {
     final Map<String, dynamic> jsonData = {
       "passenger": {
         "passengerID": driver.passengerID,
-        "passengerFirstName": driver.passengerfirstName,
-        "passengerLastName": driver.passengerlastname,
-        "passengerEmail": driver.passengeremail,
-        "passengerDocumentID": driver.passengerdocumentID,
-        "passengerDocumentType": int.tryParse(driver.passengerdocumentType),
-        "passengerCellPhone": driver.passengercellPhone,
-        "passengerCodeCellPhone": driver.passengercodecellPhone,
-        "passengerPassword": driver.passengerpassword,
+        "passengerfirstName": driver.passengerfirstName,
+        "passengerlastname": driver.passengerlastname,
+        "passengeremail": driver.passengeremail,
+        "passengerdocumentID": driver.passengerdocumentID,
+        "passengerdocumentType": driver.passengerdocumentType,
+        "passengercellPhone": driver.passengercellPhone,
+        "passengercodecellPhone": driver.passengercodecellPhone,
+        "passengerpassword": driver.passengerpassword,
       },
       "drives": driver.drives,
       "licenseCategory": driver.licenseCategory,
@@ -100,6 +100,16 @@ class DriverService {
       }
     } catch (e) {
       print('❗ Error de red: $e');
+    }
+  }
+
+  Future<bool> obtenerDriverPorID(int id) async {
+    final url = Uri.parse('$baseUrl/driver/$id');
+    try {
+      final response = await http.get(url);
+      return response.statusCode == 200;
+    } catch (_) {
+      return false;
     }
   }
 }

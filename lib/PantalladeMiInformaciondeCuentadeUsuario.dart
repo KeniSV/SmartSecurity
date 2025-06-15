@@ -1,27 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_smartsecurity/Services/DriverService.dart';
 import 'package:flutter_smartsecurity/Services/PassengerService.dart';
 import 'package:flutter_smartsecurity/PantalladeMiCuentadeUsuario.dart';
 import 'package:flutter_smartsecurity/PantalladeInicio.dart';
-import 'package:flutter_smartsecurity/Models/Driver.dart';
 import 'package:flutter_smartsecurity/Models/Passenger.dart';
 import 'package:flutter_smartsecurity/Models/TrustedContact.dart';
 import 'package:flutter_smartsecurity/Models/Place.dart';
+import 'package:flutter_smartsecurity/Models/Driver.dart';
 import 'package:flutter_smartsecurity/Models/Email.dart';
 import 'package:flutter_smartsecurity/PantalladeActualizarContrasenia.dart';
 
 class PantalladeMiInformaciondeCuentadeUsuario extends StatefulWidget {
+  final Passenger passenger;
   final Driver driver;
   final TrustedContact trustedContact;
   final Place place;
-  final Passenger passenger;
   final Email email;
 
   const PantalladeMiInformaciondeCuentadeUsuario({
+    required this.passenger,
     required this.driver,
     required this.trustedContact,
     required this.place,
-    required this.passenger,
     required this.email,
     super.key,
   });
@@ -33,7 +32,6 @@ class PantalladeMiInformaciondeCuentadeUsuario extends StatefulWidget {
 
 class _PantalladeMiInformaciondeCuentadeUsuarioState
     extends State<PantalladeMiInformaciondeCuentadeUsuario> {
-  final DriverService driverService = DriverService();
   final PassengerService passengerService = PassengerService();
 
   final TextEditingController firstNameController = TextEditingController();
@@ -48,19 +46,29 @@ class _PantalladeMiInformaciondeCuentadeUsuarioState
   String? selectedDocumentType;
   String? selectedLicenseCategory;
   bool isDriver = false;
+  bool hasCar = false;
 
   final List<String> codigosDisponibles = ['+1', '+51', '+44'];
 
   @override
   void initState() {
     super.initState();
+
+    isDriver = widget.passenger.drives;
+    hasCar = widget.passenger.hasCar;
+
     firstNameController.text = widget.passenger.passengerfirstName;
     lastNameController.text = widget.passenger.passengerlastname;
     emailController.text = widget.passenger.passengeremail;
     cellPhoneController.text = widget.passenger.passengercellPhone.toString();
-    documentIDController.text = widget.passenger.passengerdocumentID.toString();
-    licenseNumberController.text = widget.driver.licenseNumber;
-    licensePlateController.text = widget.driver.licensePlate;
+    documentIDController.text = widget.passenger.passengerdocumentID != 0
+        ? widget.passenger.passengerdocumentID.toString()
+        : '';
+
+    licenseNumberController.text =
+        isDriver ? widget.passenger.licenseNumber : '';
+    licensePlateController.text =
+        isDriver && hasCar ? widget.passenger.licensePlate : '';
 
     final codigo = '+${widget.passenger.passengercodecellPhone}';
     selectedCode = codigosDisponibles.contains(codigo) ? codigo : '+51';
@@ -69,11 +77,9 @@ class _PantalladeMiInformaciondeCuentadeUsuarioState
         ? widget.passenger.passengerdocumentType
         : 'DNI';
 
-    selectedLicenseCategory = widget.driver.licenseCategory.isNotEmpty
-        ? widget.driver.licenseCategory
+    selectedLicenseCategory = widget.passenger.licenseCategory.isNotEmpty
+        ? widget.passenger.licenseCategory
         : 'A';
-
-    isDriver = widget.driver.drives;
   }
 
   Future<void> guardarCambios() async {
@@ -88,29 +94,14 @@ class _PantalladeMiInformaciondeCuentadeUsuarioState
       passengercodecellPhone:
           int.tryParse(selectedCode?.replaceAll('+', '') ?? '51') ?? 51,
       passengerpassword: widget.passenger.passengerpassword,
+      drives: isDriver,
+      licenseCategory: selectedLicenseCategory ?? '',
+      licenseNumber: licenseNumberController.text,
+      hasCar: hasCar,
+      licensePlate: licensePlateController.text,
     );
 
-    if (isDriver) {
-      final updatedDriver = Driver(
-        passengerID: updatedPassenger.passengerID ?? 0,
-        passengerfirstName: updatedPassenger.passengerfirstName,
-        passengerlastname: updatedPassenger.passengerlastname,
-        passengeremail: updatedPassenger.passengeremail,
-        passengerdocumentID: updatedPassenger.passengerdocumentID,
-        passengerdocumentType: updatedPassenger.passengerdocumentType,
-        passengercellPhone: updatedPassenger.passengercellPhone,
-        passengercodecellPhone: updatedPassenger.passengercodecellPhone,
-        passengerpassword: updatedPassenger.passengerpassword,
-        drives: true,
-        licenseCategory: selectedLicenseCategory ?? 'A',
-        licenseNumber: licenseNumberController.text,
-        hasCar: widget.driver.hasCar,
-        licensePlate: licensePlateController.text,
-      );
-      await driverService.actualizarDriver(updatedDriver);
-    } else {
-      await passengerService.actualizarPassenger(updatedPassenger);
-    }
+    await passengerService.actualizarPassenger(updatedPassenger);
 
     final refreshedPassenger =
         await passengerService.buscarPassengerPorEmailYPassword(
@@ -132,6 +123,13 @@ class _PantalladeMiInformaciondeCuentadeUsuarioState
             refreshedPassenger.passengercellPhone;
         widget.passenger.passengercodecellPhone =
             refreshedPassenger.passengercodecellPhone;
+        widget.passenger.drives = refreshedPassenger.drives;
+        widget.passenger.licenseCategory = refreshedPassenger.licenseCategory;
+        widget.passenger.licenseNumber = refreshedPassenger.licenseNumber;
+        widget.passenger.hasCar = refreshedPassenger.hasCar;
+        widget.passenger.licensePlate = refreshedPassenger.licensePlate;
+        isDriver = refreshedPassenger.drives;
+        hasCar = refreshedPassenger.hasCar;
       });
     }
 
@@ -165,14 +163,12 @@ class _PantalladeMiInformaciondeCuentadeUsuarioState
     if (confirm != true) return;
 
     final id = widget.passenger.passengerID ?? 0;
-    if (isDriver) {
-      await driverService.eliminarDriver(id);
-    } else {
-      await passengerService.eliminarPassenger(id);
-    }
+    await passengerService.eliminarPassenger(id);
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Account deleted successfully')),
     );
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -198,10 +194,10 @@ class _PantalladeMiInformaciondeCuentadeUsuarioState
               context,
               MaterialPageRoute(
                 builder: (context) => PantalladeMiCuentadeUsuario(
+                  passenger: widget.passenger,
                   driver: widget.driver,
                   trustedContact: widget.trustedContact,
                   place: widget.place,
-                  passenger: widget.passenger,
                   email: widget.email,
                 ),
               ),
@@ -237,37 +233,52 @@ class _PantalladeMiInformaciondeCuentadeUsuarioState
             _buildTextField(firstNameController, 'First name'),
             _buildTextField(lastNameController, 'Last name'),
             _buildDropdownWithTextField(
-                'Code', codigosDisponibles, selectedCode, (val) {
-              setState(() => selectedCode = val);
-            }, cellPhoneController, 'Cell phone'),
+                'Code',
+                codigosDisponibles,
+                selectedCode,
+                (val) => setState(() => selectedCode = val),
+                cellPhoneController,
+                'Cell phone'),
             _buildDropdownWithTextField(
-                'Type of document', ['DNI', 'Passport'], selectedDocumentType,
-                (val) {
-              setState(() => selectedDocumentType = val);
-            }, documentIDController, 'ID'),
+                'Type of document',
+                ['DNI', 'Passport'],
+                selectedDocumentType,
+                (val) => setState(() => selectedDocumentType = val),
+                documentIDController,
+                'ID'),
             _buildTextField(
                 emailController, 'Email', TextInputType.emailAddress),
             CheckboxListTile(
               title: const Text("Do you drive?"),
               value: isDriver,
               onChanged: (bool? value) {
-                setState(() => isDriver = value ?? false);
+                setState(() {
+                  isDriver = value ?? false;
+                  if (!isDriver) {
+                    hasCar = false;
+                    licenseNumberController.clear();
+                    licensePlateController.clear();
+                  }
+                });
               },
             ),
             if (isDriver)
               _buildDropdownWithTextField(
-                  'Category', ['A', 'B', 'C'], selectedLicenseCategory, (val) {
-                setState(() => selectedLicenseCategory = val);
-              }, licenseNumberController, 'N° License'),
+                  'Category',
+                  ['A', 'B', 'C'],
+                  selectedLicenseCategory,
+                  (val) => setState(() => selectedLicenseCategory = val),
+                  licenseNumberController,
+                  'N° License'),
             if (isDriver)
               CheckboxListTile(
                 title: const Text("Do you have a car?"),
-                value: widget.driver.hasCar,
+                value: hasCar,
                 onChanged: (bool? value) {
-                  setState(() => widget.driver.hasCar = value ?? false);
+                  setState(() => hasCar = value ?? false);
                 },
               ),
-            if (isDriver && widget.driver.hasCar)
+            if (isDriver && hasCar)
               _buildTextField(licensePlateController, 'N° License plate'),
             const SizedBox(height: 24),
             TextButton(

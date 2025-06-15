@@ -32,21 +32,21 @@ class Driver extends Passenger {
     return Driver(
       passengerID: passenger['passengerID'] ?? json['passengerID'],
       passengerfirstName:
-          passenger['passengerFirstName'] ?? json['passengerFirstName'],
+          passenger['passengerfirstName'] ?? json['passengerfirstName'],
       passengerlastname:
-          passenger['passengerLastName'] ?? json['passengerLastName'],
-      passengeremail: passenger['passengerEmail'] ?? json['passengerEmail'],
+          passenger['passengerlastname'] ?? json['passengerlastname'],
+      passengeremail: passenger['passengeremail'] ?? json['passengeremail'],
       passengerdocumentID:
-          passenger['passengerDocumentID'] ?? json['passengerDocumentID'],
+          passenger['passengerdocumentID'] ?? json['passengerdocumentID'],
       passengerdocumentType:
-          (passenger['passengerDocumentType'] ?? json['passengerDocumentType'])
+          (passenger['passengerdocumentType'] ?? json['passengerdocumentType'])
               .toString(),
       passengercellPhone:
-          passenger['passengerCellPhone'] ?? json['passengerCellPhone'],
+          passenger['passengercellPhone'] ?? json['passengercellPhone'],
       passengercodecellPhone:
-          passenger['passengerCodeCellPhone'] ?? json['passengerCodeCellPhone'],
+          passenger['passengercodecellPhone'] ?? json['passengercodecellPhone'],
       passengerpassword:
-          passenger['passengerPassword'] ?? json['passengerPassword'],
+          passenger['passengerpassword'] ?? json['passengerpassword'],
       drives: json['drives'],
       licenseCategory: json['licenseCategory'],
       licenseNumber: json['licenseNumber'],
@@ -60,14 +60,14 @@ class Driver extends Passenger {
     return {
       "passenger": {
         "passengerID": passengerID,
-        "passengerFirstName": passengerfirstName,
-        "passengerLastName": passengerlastname,
-        "passengerEmail": passengeremail,
-        "passengerDocumentID": passengerdocumentID,
-        "passengerDocumentType": int.tryParse(passengerdocumentType),
-        "passengerCellPhone": passengercellPhone,
-        "passengerCodeCellPhone": passengercodecellPhone,
-        "passengerPassword": passengerpassword,
+        "passengerfirstName": passengerfirstName,
+        "passengerlastname": passengerlastname,
+        "passengeremail": passengeremail,
+        "passengerdocumentID": passengerdocumentID,
+        "passengerdocumentType": passengerdocumentType,
+        "passengercellPhone": passengercellPhone,
+        "passengercodecellPhone": passengercodecellPhone,
+        "passengerpassword": passengerpassword,
       },
       "drives": drives,
       "licenseCategory": licenseCategory,

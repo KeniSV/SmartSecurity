@@ -103,22 +103,27 @@ class KeywordService {
   /// Transcribir audio (POST)
   Future<String> transcribirAudio(Uint8List audioBytes) async {
     final url = Uri.parse('$baseUrl/transcribe/');
+    final request = http.MultipartRequest('POST', url)
+      ..files.add(http.MultipartFile.fromBytes('file', audioBytes,
+          filename: 'audio.wav'));
 
-    final request = http.MultipartRequest('POST', url);
-    request.files.add(http.MultipartFile.fromBytes(
-      'file',
-      audioBytes,
-      filename: 'audio.wav',
-    ));
+    try {
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
 
-    final response = await request.send();
-    final body = await response.stream.bytesToString();
+      print(
+          "🎙️ Transcripción recibida: $responseBody"); // 👈 IMPRIME EN FLUTTER
 
-    if (response.statusCode == 200) {
-      return jsonDecode(body)['text'] ?? '';
-    } else {
-      print("❌ Error al transcribir audio: $body");
-      throw Exception("Error al transcribir audio");
+      if (response.statusCode == 200) {
+        final data = jsonDecode(responseBody);
+        return data['text'] ?? '';
+      } else {
+        print("❌ Error al transcribir audio: $responseBody");
+        return '';
+      }
+    } catch (e) {
+      print("❗ Error de red al transcribir audio: $e");
+      return '';
     }
   }
 }
