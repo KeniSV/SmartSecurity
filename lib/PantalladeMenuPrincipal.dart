@@ -12,9 +12,11 @@ import 'package:flutter_smartsecurity/Models/Email.dart';
 import 'package:flutter_smartsecurity/Services/PlaceService.dart';
 import 'package:flutter_smartsecurity/Services/TrustedContactService.dart';
 import 'package:flutter_smartsecurity/Services/KeywordService.dart';
+import 'package:flutter_smartsecurity/Services/TrackingService.dart';
 import 'package:record/record.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
@@ -50,12 +52,21 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
   final TrustedContactService _trustedContactService = TrustedContactService();
   final KeywordService _keywordService = KeywordService();
   List<Place> lugares = [];
+  late TrackingService _tracker;
 
   @override
   void initState() {
     super.initState();
     _obtenerUbicacion();
     _cargarLugares();
+    _tracker = TrackingService(widget.passenger.passengerID ?? 0);
+    _tracker.iniciarTracking();
+  }
+
+  @override
+  void dispose() {
+    _tracker.detenerTracking();
+    super.dispose();
   }
 
   Future<void> _obtenerUbicacion() async {
@@ -130,14 +141,9 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
     final coincidencia = lista.any((k) => texto.toLowerCase().contains(k));
     if (coincidencia) {
       await enviarMensajesDeAyuda();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("✅ Alerta enviada a contactos.")),
-      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content:
-                Text("❌ No se detectó palabra clave. Inténtalo nuevamente.")),
+        const SnackBar(content: Text("Try saying the keyword again")),
       );
     }
   }
@@ -153,8 +159,9 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
 
     final lat = _currentLocation.latitude.toStringAsFixed(5);
     final lng = _currentLocation.longitude.toStringAsFixed(5);
+    final mapsLink = 'https://www.google.com/maps?q=$lat,$lng';
     final mensaje = Uri.encodeComponent(
-        '¡Necesito ayuda! Por favor, contáctame lo antes posible. Estoy aquí: Lat: $lat, Lng: $lng');
+        '🚨 ¡Necesito ayuda! Esta es mi ubicación en tiempo real: $mapsLink');
 
     for (final contact in contactos) {
       final numero = '51${contact.trustedContactCellPhone}';
@@ -163,6 +170,68 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
 
       if (await canLaunchUrlString(wa)) await launchUrlString(wa);
       if (await canLaunchUrlString(sms)) await launchUrlString(sms);
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("✅ Alerts sent successfully")),
+    );
+  }
+
+  Future<void> llamarUltimoContacto() async {
+    final contactos = await _trustedContactService.listarTrustedContacts();
+    if (contactos.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("⚠️ No hay contactos de confianza.")),
+      );
+      return;
+    }
+
+    final ultimo = contactos.last;
+    final numero = 'tel:+51${ultimo.trustedContactCellPhone}';
+    if (await canLaunchUrlString(numero)) {
+      await launchUrlString(numero);
+
+      // ✅ Mostrar notificación luego de iniciar la llamada
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("📞 Emergency call made successfully")),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ No se pudo realizar la llamada.")),
+      );
+    }
+  }
+
+  Future<void> grabarYVerificarPalabraClaveYLlamar() async {
+    final record = Record();
+    final hasPermission = await record.hasPermission();
+    if (!hasPermission) return;
+
+    await record.start(
+      encoder: AudioEncoder.wav,
+      bitRate: 128000,
+      samplingRate: 16000,
+    );
+
+    await Future.delayed(const Duration(seconds: 20));
+
+    final path = await record.stop();
+    if (path == null) return;
+
+    final file = File(path);
+    final audioBytes = await file.readAsBytes();
+
+    final texto = await _keywordService.transcribirAudio(audioBytes);
+    final keywords = await _keywordService.listarKeywords();
+    final lista = keywords.map((k) => k.keywordName.toLowerCase()).toList();
+
+    final coincidencia = lista.any((k) => texto.toLowerCase().contains(k));
+    if (coincidencia) {
+      await llamarUltimoContacto();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Try saying the keyword again")),
+      );
     }
   }
 
@@ -227,25 +296,46 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
                           TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 20),
                   Center(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        isVoiceRecognitionActive
-                            ? grabarYVerificarPalabraClave()
-                            : enviarMensajesDeAyuda();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        shape: const CircleBorder(),
-                        padding: const EdgeInsets.all(50),
-                        backgroundColor: Colors.blueAccent,
-                        elevation: 10,
-                      ),
-                      child: const Text(
-                        'HELP',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold),
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            isVoiceRecognitionActive
+                                ? grabarYVerificarPalabraClave()
+                                : enviarMensajesDeAyuda();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            shape: const CircleBorder(),
+                            padding: const EdgeInsets.all(50),
+                            backgroundColor: Colors.blueAccent,
+                            elevation: 10,
+                          ),
+                          child: const Text(
+                            'HELP',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        ElevatedButton(
+                          onPressed: () {
+                            isVoiceRecognitionActive
+                                ? grabarYVerificarPalabraClaveYLlamar()
+                                : llamarUltimoContacto();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            shape: const CircleBorder(),
+                            padding: const EdgeInsets.all(25),
+                            backgroundColor: Colors.green,
+                            elevation: 6,
+                          ),
+                          child: const Icon(Icons.phone,
+                              color: Colors.white, size: 28),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 20),

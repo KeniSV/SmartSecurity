@@ -120,6 +120,23 @@ class _PantalladeRegistrodeUsuarioState
                           ),
                         ),
                       );
+                    } else {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Please try again")),
+                      );
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PantalladeInicio(
+                            passenger: widget.passenger,
+                            driver: widget.driver,
+                            trustedContact: widget.trustedContact,
+                            place: widget.place,
+                            email: widget.email,
+                          ),
+                        ),
+                      );
                     }
                   },
                   child: const Text("Continue"),
