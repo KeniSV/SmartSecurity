@@ -18,7 +18,8 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
+import 'package:location/location.dart' as loc;
+import 'package:permission_handler/permission_handler.dart' as perm;
 
 class PantalladeMenuPrincipal extends StatefulWidget {
   final Driver driver;
@@ -70,19 +71,21 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
   }
 
   Future<void> _obtenerUbicacion() async {
-    Location location = Location();
+    loc.Location location = loc.Location();
+
     if (!await location.serviceEnabled()) {
       if (!await location.requestService()) return;
     }
+
     var permission = await location.hasPermission();
-    if (permission == PermissionStatus.denied) {
+    if (permission == loc.PermissionStatus.denied) {
       permission = await location.requestPermission();
-      if (permission != PermissionStatus.granted) return;
+      if (permission != loc.PermissionStatus.granted) return;
     }
 
-    final loc = await location.getLocation();
+    final ubicacion = await location.getLocation();
     setState(() {
-      _currentLocation = LatLng(loc.latitude!, loc.longitude!);
+      _currentLocation = LatLng(ubicacion.latitude!, ubicacion.longitude!);
       _markers = {
         Marker(
           markerId: const MarkerId('current_location'),
@@ -178,6 +181,13 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
   }
 
   Future<void> llamarUltimoContacto() async {
+    if (!await verificarPermisoLlamada()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Permiso para llamadas no concedido")),
+      );
+      return;
+    }
+
     final contactos = await _trustedContactService.listarTrustedContacts();
     if (contactos.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -187,11 +197,9 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
     }
 
     final ultimo = contactos.last;
-    final numero = 'tel:+51${ultimo.trustedContactCellPhone}';
-    if (await canLaunchUrlString(numero)) {
-      await launchUrlString(numero);
-
-      // ✅ Mostrar notificación luego de iniciar la llamada
+    final uri = Uri.parse('tel:51${ultimo.trustedContactCellPhone}');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("📞 Emergency call made successfully")),
       );
@@ -233,6 +241,15 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
         const SnackBar(content: Text("Try saying the keyword again")),
       );
     }
+  }
+
+  Future<bool> verificarPermisoLlamada() async {
+    final status = await perm.Permission.phone.status;
+    if (!status.isGranted) {
+      final result = await perm.Permission.phone.request();
+      return result.isGranted;
+    }
+    return true;
   }
 
   @override
