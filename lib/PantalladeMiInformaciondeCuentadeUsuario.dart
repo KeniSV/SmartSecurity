@@ -80,6 +80,18 @@ class _PantalladeMiInformaciondeCuentadeUsuarioState
     selectedLicenseCategory = widget.passenger.licenseCategory.isNotEmpty
         ? widget.passenger.licenseCategory
         : 'A';
+
+// ✅ Validar campos vacíos después de cargar valores
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (firstNameController.text.trim().isEmpty ||
+          lastNameController.text.trim().isEmpty ||
+          cellPhoneController.text.trim().isEmpty ||
+          documentIDController.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("⚠️ Empty fields, complete")),
+        );
+      }
+    });
   }
 
   Future<void> guardarCambios() async {

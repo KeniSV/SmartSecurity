@@ -169,10 +169,17 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
     for (final contact in contactos) {
       final numero = '51${contact.trustedContactCellPhone}';
       final wa = 'https://wa.me/$numero?text=$mensaje';
-      final sms = 'sms:$numero?body=$mensaje';
+      final smsUri = Uri.parse('sms:$numero?body=$mensaje');
 
       if (await canLaunchUrlString(wa)) await launchUrlString(wa);
-      if (await canLaunchUrlString(sms)) await launchUrlString(sms);
+      if (await canLaunchUrl(smsUri)) {
+        await launchUrl(smsUri, mode: LaunchMode.externalApplication);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text("❌ No se pudo abrir la app de SMS para $numero")),
+        );
+      }
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
