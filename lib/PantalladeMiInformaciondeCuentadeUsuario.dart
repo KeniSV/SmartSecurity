@@ -95,6 +95,18 @@ class _PantalladeMiInformaciondeCuentadeUsuarioState
   }
 
   Future<void> guardarCambios() async {
+    // Validación de campos obligatorios
+    if (firstNameController.text.trim().isEmpty ||
+        lastNameController.text.trim().isEmpty ||
+        cellPhoneController.text.trim().isEmpty ||
+        documentIDController.text.trim().isEmpty ||
+        emailController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("⚠️ Empty fields, complete")),
+      );
+      return; // Salir sin guardar
+    }
+
     final updatedPassenger = Passenger(
       passengerID: widget.passenger.passengerID,
       passengerfirstName: firstNameController.text,
