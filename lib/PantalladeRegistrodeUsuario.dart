@@ -56,11 +56,10 @@ class _PantalladeRegistrodeUsuarioState
     final password = passwordController.text.trim();
 
     if (email.isEmpty && password.isEmpty) {
-      _mostrarDialogo("Los campos no pueden estar vacíos.");
+      _mostrarDialogo("Fields cannot be empty");
       return;
     } else if (email.isEmpty || password.isEmpty) {
-      _mostrarDialogo(
-          "Campos vacíos, por favor complete los campos faltantes.");
+      _mostrarDialogo("Empty fields, please complete the missing fields");
       return;
     }
 
@@ -104,8 +103,7 @@ class _PantalladeRegistrodeUsuarioState
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text(
-                              "¡Bienvenid@!, tu inicio de sesión fue exitosa."),
+                          content: Text("Welcome! Your login was successful"),
                         ),
                       );
                       Navigator.pushReplacement(

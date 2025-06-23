@@ -31,7 +31,6 @@ dependencies:
   flutter:
     sdk: flutter
   url_launcher: ^6.1.7 # Asegúrate de usar la última versión disponible
-  
   record: ^4.4.4
   path_provider: ^2.1.1
   path: ^1.8.3

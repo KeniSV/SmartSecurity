@@ -50,7 +50,7 @@ class _PantalladeRegistrodeUsuarioNuevoState
         phone.isEmpty &&
         password.isEmpty &&
         confirmPassword.isEmpty) {
-      _mostrarDialogo("Los campos no pueden estar vacíos.");
+      _mostrarDialogo("Fields cannot be empty");
       return;
     }
 
@@ -58,8 +58,7 @@ class _PantalladeRegistrodeUsuarioNuevoState
         phone.isEmpty ||
         password.isEmpty ||
         confirmPassword.isEmpty) {
-      _mostrarDialogo(
-          "Campos vacíos, por favor complete los campos faltantes.");
+      _mostrarDialogo("Empty fields, please complete the missing fields");
       return;
     }
 
@@ -89,7 +88,7 @@ class _PantalladeRegistrodeUsuarioNuevoState
 
       await passengerService.crearPassenger(nuevoPasajero);
 
-      _mostrarDialogo("¡Bienvenid@!, tu registro fue exitosa.", onClose: () {
+      _mostrarDialogo("Welcome! Your registration was successful", onClose: () {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(

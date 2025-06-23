@@ -20,7 +20,7 @@ class _PantalladeAgregarPalabraClaveState
     final nombre = _keywordController.text.trim();
 
     if (nombre.isEmpty) {
-      _mostrarDialogo("⚠️ Campo vacío, completar.");
+      _mostrarDialogo("⚠️ Empty field, complete.");
       return;
     }
 
@@ -34,7 +34,7 @@ class _PantalladeAgregarPalabraClaveState
       await _keywordService.crearKeyword(nuevaKeyword);
       _mostrarDialogo("✅ Keyword saved successfully", cerrarPantalla: true);
     } catch (e) {
-      _mostrarDialogo("❌ Error al crear palabra clave:\n$e");
+      _mostrarDialogo("❌ Error creating keyword:\n$e");
     } finally {
       setState(() {
         _isLoading = false;
@@ -57,7 +57,7 @@ class _PantalladeAgregarPalabraClaveState
                 // Muestra SnackBar con mensaje
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text("Palabra clave agregada"),
+                    content: Text("Keyword added"),
                     duration: Duration(seconds: 2),
                   ),
                 );

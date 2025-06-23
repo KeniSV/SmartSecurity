@@ -85,7 +85,7 @@ class _PantalladeMiLugarState extends State<PantalladeMiLugar> {
               await placeService.eliminarLugar(lugarSeleccionado!.placeID!);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Place successfully removed'),
+                  content: Text('✅ The place was successfully deleted'),
                   backgroundColor: Colors.green,
                 ),
               );
@@ -225,7 +225,7 @@ class _PantalladeMiLugarState extends State<PantalladeMiLugar> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               ),
-              child: const Text('Delete selected place'),
+              child: const Text('Delete place'),
             ),
           ],
         ),

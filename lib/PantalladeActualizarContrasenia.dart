@@ -46,17 +46,17 @@ class _PantalladeActualizarContraseniaState
     if (currentPassword.isEmpty ||
         newPassword.isEmpty ||
         confirmPassword.isEmpty) {
-      _mostrarMensaje("Campo vacío, completa los campos.");
+      _mostrarMensaje("Empty field, please fill in the fields");
       return;
     }
 
     if (currentPassword != widget.passenger.passengerpassword) {
-      _mostrarMensaje("La contraseña actual no es correcta.");
+      _mostrarMensaje("The current password is not correct");
       return;
     }
 
     if (newPassword != confirmPassword) {
-      _mostrarMensaje("Las contraseñas nuevas no coinciden.");
+      _mostrarMensaje("The new passwords do not match");
       return;
     }
 
@@ -75,7 +75,7 @@ class _PantalladeActualizarContraseniaState
 
     await passengerService.actualizarPassenger(updatedPassenger);
 
-    _mostrarMensaje("Se actualizó satisfactoriamente.");
+    _mostrarMensaje("Updated successfully");
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(

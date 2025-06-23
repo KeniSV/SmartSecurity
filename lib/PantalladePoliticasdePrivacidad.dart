@@ -46,7 +46,7 @@ class PantalladePoliticasdePrivacidad extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         title: const Text(
-          'Terms and Conditions',
+          'Privacy policy',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,

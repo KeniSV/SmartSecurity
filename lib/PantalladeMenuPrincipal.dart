@@ -1,3 +1,5 @@
+import 'package:flutter_smartsecurity/Services/SmsService.dart';
+import 'package:flutter_smartsecurity/Services/CallService.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:io';
@@ -54,6 +56,9 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
   final KeywordService _keywordService = KeywordService();
   List<Place> lugares = [];
   late TrackingService _tracker;
+
+  final SmsService _smsService = SmsService();
+  final CallService _callService = CallService();
 
   @override
   void initState() {
@@ -155,7 +160,7 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
     final contactos = await _trustedContactService.listarTrustedContacts();
     if (contactos.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("⚠️ No hay contactos de confianza.")),
+        const SnackBar(content: Text("⚠️ There are no trusted contacts.")),
       );
       return;
     }
@@ -163,23 +168,18 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
     final lat = _currentLocation.latitude.toStringAsFixed(5);
     final lng = _currentLocation.longitude.toStringAsFixed(5);
     final mapsLink = 'https://www.google.com/maps?q=$lat,$lng';
-    final mensaje = Uri.encodeComponent(
-        '🚨 ¡Necesito ayuda! Esta es mi ubicación en tiempo real: $mapsLink');
+    final mensaje =
+        '🚨 ¡Necesito ayuda! Esta es mi ubicación en tiempo real: $mapsLink';
 
     for (final contact in contactos) {
       final numero = '51${contact.trustedContactCellPhone}';
-      final wa = 'https://wa.me/$numero?text=$mensaje';
-      final smsUri = Uri.parse('sms:$numero?body=$mensaje');
+      final wa = 'https://wa.me/$numero?text=${Uri.encodeComponent(mensaje)}';
 
+      // WhatsApp
       if (await canLaunchUrlString(wa)) await launchUrlString(wa);
-      if (await canLaunchUrl(smsUri)) {
-        await launchUrl(smsUri, mode: LaunchMode.externalApplication);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text("❌ No se pudo abrir la app de SMS para $numero")),
-        );
-      }
+
+      // SMS
+      await _smsService.sendSms(numero, mensaje);
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -190,7 +190,7 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
   Future<void> llamarUltimoContacto() async {
     if (!await verificarPermisoLlamada()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Permiso para llamadas no concedido")),
+        const SnackBar(content: Text("❌ Call permission not granted")),
       );
       return;
     }
@@ -198,21 +198,21 @@ class _PantalladeMenuPrincipalState extends State<PantalladeMenuPrincipal> {
     final contactos = await _trustedContactService.listarTrustedContacts();
     if (contactos.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("⚠️ No hay contactos de confianza.")),
+        const SnackBar(content: Text("⚠️ There are no trusted contacts.")),
       );
       return;
     }
 
     final ultimo = contactos.last;
-    final uri = Uri.parse('tel:51${ultimo.trustedContactCellPhone}');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+
+    try {
+      await _callService.makeCall('51${ultimo.trustedContactCellPhone}');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("📞 Emergency call made successfully")),
       );
-    } else {
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ No se pudo realizar la llamada.")),
+        SnackBar(content: Text("❌ Failed to make call: $e")),
       );
     }
   }

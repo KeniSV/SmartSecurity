@@ -75,6 +75,12 @@ class _PantalladeMiContactoState extends State<PantalladeMiContacto> {
                 await trustedContactService
                     .eliminarTrustedContact(contact.trustedContactID!);
                 Navigator.pop(context);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text("✅ The contact was successfully deleted")),
+                );
+
                 listarContactos();
                 setState(() => selectedContact = null);
               }
