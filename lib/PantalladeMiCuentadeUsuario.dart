@@ -155,6 +155,8 @@ class _PantalladeMiCuentadeUsuarioState
                     builder: (context) => PantalladeMiLugar(
                         driver: widget.driver,
                         trustedcontact: widget.trustedContact,
+                        email: widget.email,
+                        passenger: widget.passenger,
                         place: widget.place),
                   ),
                 );

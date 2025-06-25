@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_smartsecurity/Models/Email.dart';
+import 'package:flutter_smartsecurity/Models/Passenger.dart';
 import 'package:flutter_smartsecurity/PantalladeAgregarMiLugar.dart';
 import 'package:flutter_smartsecurity/Models/Driver.dart';
 import 'package:flutter_smartsecurity/Models/Place.dart';
 import 'package:flutter_smartsecurity/Models/TrustedContact.dart';
 import 'package:flutter_smartsecurity/Services/PlaceService.dart';
+import 'package:flutter_smartsecurity/PantalladeMiCuentadeUsuario.dart';
 
 class PantalladeMiLugar extends StatefulWidget {
   final Driver driver;
   final TrustedContact trustedcontact;
   final Place place;
+  final Passenger passenger;
+  final Email email;
 
   const PantalladeMiLugar({
     required this.driver,
     required this.trustedcontact,
     required this.place,
+    required this.passenger,
+    required this.email,
     super.key,
   });
 
@@ -83,13 +90,13 @@ class _PantalladeMiLugarState extends State<PantalladeMiLugar> {
             onPressed: () async {
               Navigator.pop(context);
               await placeService.eliminarLugar(lugarSeleccionado!.placeID!);
+              await listarLugares();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('✅ The place was successfully deleted'),
                   backgroundColor: Colors.green,
                 ),
               );
-              listarLugares();
             },
             child: const Text(
               'Yes',
@@ -109,7 +116,20 @@ class _PantalladeMiLugarState extends State<PantalladeMiLugar> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PantalladeMiCuentadeUsuario(
+                  driver: widget.driver,
+                  passenger: widget.passenger,
+                  trustedContact: widget.trustedcontact,
+                  place: widget.place,
+                  email: widget.email,
+                ),
+              ),
+            );
+          },
         ),
         title: const Text(
           'My place',
@@ -197,6 +217,8 @@ class _PantalladeMiLugarState extends State<PantalladeMiLugar> {
                       driver: widget.driver,
                       trustedcontact: widget.trustedcontact,
                       place: widget.place,
+                      passenger: widget.passenger,
+                      email: widget.email,
                     ),
                   ),
                 );

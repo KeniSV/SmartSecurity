@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_smartsecurity/Models/Email.dart';
+import 'package:flutter_smartsecurity/Models/Passenger.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_smartsecurity/Services/PlaceService.dart';
 import 'package:flutter_smartsecurity/PantalladeMiLugar.dart';
@@ -12,11 +14,15 @@ class PantalladeAgregarMiLugar extends StatefulWidget {
   final Driver driver;
   final TrustedContact trustedcontact;
   final Place place;
+  final Passenger passenger;
+  final Email email;
 
   const PantalladeAgregarMiLugar({
     required this.driver,
     required this.trustedcontact,
     required this.place,
+    required this.passenger,
+    required this.email,
     super.key,
   });
 
@@ -66,6 +72,8 @@ class _PantalladeAgregarMiLugarState extends State<PantalladeAgregarMiLugar> {
               driver: widget.driver,
               trustedcontact: widget.trustedcontact,
               place: nuevoLugar,
+              passenger: widget.passenger,
+              email: widget.email,
             ),
           ),
         );
@@ -143,6 +151,8 @@ class _PantalladeAgregarMiLugarState extends State<PantalladeAgregarMiLugar> {
                   driver: widget.driver,
                   trustedcontact: widget.trustedcontact,
                   place: widget.place,
+                  passenger: widget.passenger,
+                  email: widget.email,
                 ),
               ),
             );
