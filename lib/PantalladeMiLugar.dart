@@ -90,13 +90,13 @@ class _PantalladeMiLugarState extends State<PantalladeMiLugar> {
             onPressed: () async {
               Navigator.pop(context);
               await placeService.eliminarLugar(lugarSeleccionado!.placeID!);
-              await listarLugares();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('✅ The place was successfully deleted'),
-                  backgroundColor: Colors.green,
+                  backgroundColor: Colors.black,
                 ),
               );
+              await listarLugares();
             },
             child: const Text(
               'Yes',
